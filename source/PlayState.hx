@@ -6,6 +6,7 @@ import flixel.FlxState;
 
 class PlayState extends FlxState {
 	var player:Player;
+	var asteroid:Asteroid;
 
 	override public function create():Void {
 		super.create();
@@ -16,6 +17,10 @@ class PlayState extends FlxState {
 		// adding player
 		player = new Player();
 		add(player);
+
+		asteroid = new Asteroid();
+		asteroid.create(10, 10, 100, 100);
+		add(asteroid);
 	}
 
 	override public function update(elapsed:Float):Void {
@@ -25,5 +30,7 @@ class PlayState extends FlxState {
 		if (FlxG.keys.pressed.ESCAPE) {
 			FlxG.switchState(new MenuState());
 		}
+
+		FlxG.collide(player, asteroid);
 	}
 }
