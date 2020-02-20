@@ -1,12 +1,17 @@
 package;
 
+import flixel.group.FlxGroup.FlxTypedGroup;
+import echo.Echo;
 import flixel.addons.display.FlxStarField.FlxStarField2D;
 import flixel.FlxG;
 import flixel.FlxState;
 
 class PlayState extends FlxState {
+	// creating a static group of asteroids
+	// having collisions in groups improves performance
+	static var asteroids:FlxTypedGroup<Asteroid>;
+
 	var player:Player;
-	var asteroid:Asteroid;
 
 	override public function create():Void {
 		super.create();
@@ -18,9 +23,14 @@ class PlayState extends FlxState {
 		player = new Player();
 		add(player);
 
-		asteroid = new Asteroid();
-		asteroid.create(10, 10, 100, 100);
-		add(asteroid);
+		// adding asteroids
+		asteroids = new FlxTypedGroup<Asteroid>();
+		for (i in 0...20) {
+			var asteroid = asteroids.recycle(Asteroid.new);
+
+			asteroid.create();
+		}
+		add(asteroids);
 	}
 
 	override public function update(elapsed:Float):Void {
@@ -31,6 +41,7 @@ class PlayState extends FlxState {
 			FlxG.switchState(new MenuState());
 		}
 
-		FlxG.collide(player, asteroid);
+		FlxG.collide(player, asteroids);
+		FlxG.collide(asteroids, asteroids);
 	}
 }

@@ -16,16 +16,10 @@ class Player extends FlxSprite {
 		drag.x = 5;
 		drag.y = 5;
 
-		// make it bounce
-		elasticity = 1;
+		// make it not bounce
+		elasticity = 0;
 		// make it collidable
 		solid = true;
-
-		// enlarging hitbox
-		width *= 2;
-		height *= 2;
-		// centering bounding box with graphics
-		//centerOffsets();
 
 		// smooth rotations, affects perfomance
 		antialiasing = true;

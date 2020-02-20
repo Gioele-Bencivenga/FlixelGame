@@ -38,6 +38,9 @@
 	<!--In case you want to use the addons package-->
 	<haxelib name="flixel-addons" />
 
+	<!--Physics library by austineast (needed because flixel doesn't have circle hitboxes)-->
+	<haxelib name="echo" />
+
 	<!--In case you want to use the ui package-->
 	<!--<haxelib name="flixel-ui" />-->
 
