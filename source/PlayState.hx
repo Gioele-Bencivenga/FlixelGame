@@ -10,8 +10,10 @@ class PlayState extends FlxState {
 	override public function create():Void {
 		super.create();
 
+		// adding background particles
 		add(new FlxStarField2D());
 
+		// adding player
 		player = new Player();
 		add(player);
 	}
