@@ -9,9 +9,7 @@ class Asteroid extends FlxNapeSprite {
 
 	public function new() {
 		super();
-
-		// make it not bounce
-		elasticity = 0;
+		
 		// smooth rotations, bad performance
 		antialiasing = true;
 	}
@@ -31,15 +29,11 @@ class Asteroid extends FlxNapeSprite {
 		if (_x != 0 || _y != 0 || _size != -1) {
 			x = _x;
 			y = _y;
-			body.velocity.setxy(_xVelocity, _yVelocity);
-			//body.angularVel = (Math.abs(velocity.x) + Math.abs(velocity.y));
 			size = _size;
 		} else {
 			x = FlxG.random.int(0, FlxG.width);
 			y = FlxG.random.int(0, FlxG.height);
-			body.velocity.setxy(FlxG.random.float(0, 100), FlxG.random.float(0, 100));
-			//body.angularVel = (Math.abs(velocity.x) + Math.abs(velocity.y));
-			size = FlxG.random.int(0, 1);
+			size = FlxG.random.int(0, 3);
 		}
 
 		AssignSprite();
@@ -55,7 +49,7 @@ class Asteroid extends FlxNapeSprite {
 		if (size == 0) {
 			loadGraphic("assets/images/Asteroids/Asteroid_Small.png");
 			createCircularBody(10);
-			setBodyMaterial(0.1, 0.2, 0.4, 1, 0.001);
+			setBodyMaterial(1, 0.2, 0.4, 3, 0.001);
 		} else if (size == 1) {
 			// 50% chance of being the mineral version
 			if (FlxG.random.bool(50)) {
@@ -63,20 +57,24 @@ class Asteroid extends FlxNapeSprite {
 			} else {
 				loadGraphic("assets/images/Asteroids/Asteroid_Medium_Minerals.png");
 			}
-			createCircularBody(20);
-			setBodyMaterial(0.1, 0.2, 0.4, 10, 0.001);
+			createCircularBody(23);
+			setBodyMaterial(1, 0.2, 0.4, 4, 0.001);
 		} else if (size == 2) {
 			if (FlxG.random.bool(50)) {
 				loadGraphic("assets/images/Asteroids/Asteroid_Large.png");
 			} else {
 				loadGraphic("assets/images/Asteroids/Asteroid_Large_Minerals.png");
 			}
+			createCircularBody(50);
+			setBodyMaterial(1, 0.2, 0.4, 6, 0.001);
 		} else if (size == 3) {
 			if (FlxG.random.bool(50)) {
 				loadGraphic("assets/images/Asteroids/Asteroid_Huge.png");
 			} else {
 				loadGraphic("assets/images/Asteroids/Asteroid_Huge_Minerals.png");
 			}
+			createCircularBody(90);
+			setBodyMaterial(1, 0.2, 0.4, 8, 0.001);
 		}
 	}
 }

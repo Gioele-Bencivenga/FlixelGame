@@ -1,3 +1,4 @@
+import nape.util.Debug;
 import nape.geom.Vec3;
 import js.html.svg.Point;
 import nape.geom.Vec2;
@@ -9,9 +10,9 @@ import flixel.addons.nape.FlxNapeSprite;
 class Player extends FlxNapeSprite {
 	var thrust:Float = 1.7;
 	// the speed at which the player is able to turn left/right
-	var turnVelocity:Int = 2;
+	var turnVelocity:Float = 1;
 
-	// vector used in the movement 
+	// vector used in the movement
 	var direction:Vec2;
 
 	public function new() {
@@ -25,21 +26,27 @@ class Player extends FlxNapeSprite {
 		antialiasing = true;
 
 		loadGraphic("assets/images/Spaceships/ship.png");
-		createCircularBody(10);
+		createCircularBody(15);
 		setBodyMaterial(0.1, 0.2, 0.4, 1, 0.001);
+		body.debugDraw = false;
 	}
 
 	override public function update(elapsed:Float) {
 		super.update(elapsed);
 
-		ProcessMovementNape();
+		ProcessMovement();
 	}
 
-	private function ProcessMovementNape(){
+	private function ProcessMovement() {
 		// if any key from the array is pressed
 		if (FlxG.keys.anyPressed([W, UP])) {
 			direction = Vec2.fromPolar(thrust, body.rotation);
-			// applying the impulse in the direction vector moves the body in the direction it's facing		
+			// applying the impulse in the direction vector moves the body in the direction it's facing
+			body.applyImpulse(direction);
+		}
+		if (FlxG.keys.anyPressed([S, DOWN])) {
+			direction = Vec2.fromPolar(-(thrust / 2), body.rotation);
+			// applying the impulse in the direction vector moves the body in the direction it's facing
 			body.applyImpulse(direction);
 		}
 		if (FlxG.keys.anyPressed([A, LEFT])) {
