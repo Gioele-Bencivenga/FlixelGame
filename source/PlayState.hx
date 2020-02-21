@@ -1,5 +1,6 @@
 package;
 
+import flixel.addons.nape.FlxNapeSpace;
 import flixel.group.FlxGroup.FlxTypedGroup;
 import echo.Echo;
 import flixel.addons.display.FlxStarField.FlxStarField2D;
@@ -14,6 +15,11 @@ class PlayState extends FlxState {
 	var player:Player;
 
 	override public function create():Void {
+		// initializing the space for physics simulation
+		FlxNapeSpace.init();
+		FlxNapeSpace.velocityIterations = 5;
+		FlxNapeSpace.positionIterations = 5;
+		
 		super.create();
 
 		// adding background particles
@@ -25,7 +31,7 @@ class PlayState extends FlxState {
 
 		// adding asteroids
 		asteroids = new FlxTypedGroup<Asteroid>();
-		for (i in 0...20) {
+		for (i in 0...5) {
 			var asteroid = asteroids.recycle(Asteroid.new);
 
 			asteroid.create();
@@ -40,8 +46,5 @@ class PlayState extends FlxState {
 		if (FlxG.keys.pressed.ESCAPE) {
 			FlxG.switchState(new MenuState());
 		}
-
-		FlxG.collide(player, asteroids);
-		FlxG.collide(asteroids, asteroids);
 	}
 }

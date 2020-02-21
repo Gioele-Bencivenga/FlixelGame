@@ -1,8 +1,9 @@
 import flixel.FlxG;
 import flixel.util.FlxSpriteUtil;
 import flixel.FlxSprite;
+import flixel.addons.nape.FlxNapeSprite;
 
-class Asteroid extends FlxSprite {
+class Asteroid extends FlxNapeSprite {
 	// asteroid sizes are small(0), medium(1), large(2), huge(3)
 	var size:Int;
 
@@ -30,17 +31,15 @@ class Asteroid extends FlxSprite {
 		if (_x != 0 || _y != 0 || _size != -1) {
 			x = _x;
 			y = _y;
-			velocity.x = _xVelocity;
-			velocity.y = _yVelocity;
-			angularVelocity = (Math.abs(velocity.x) + Math.abs(velocity.y));
+			body.velocity.setxy(_xVelocity, _yVelocity);
+			//body.angularVel = (Math.abs(velocity.x) + Math.abs(velocity.y));
 			size = _size;
 		} else {
 			x = FlxG.random.int(0, FlxG.width);
 			y = FlxG.random.int(0, FlxG.height);
-			velocity.x = FlxG.random.float(0, 100);
-			velocity.y = FlxG.random.float(0, 100);
-			angularVelocity = (Math.abs(velocity.x) + Math.abs(velocity.y));
-			size = FlxG.random.int(0, 3);
+			body.velocity.setxy(FlxG.random.float(0, 100), FlxG.random.float(0, 100));
+			//body.angularVel = (Math.abs(velocity.x) + Math.abs(velocity.y));
+			size = FlxG.random.int(0, 1);
 		}
 
 		AssignSprite();
@@ -49,15 +48,14 @@ class Asteroid extends FlxSprite {
 	}
 
 	override public function update(elapsed:Float) {
-		// enabling screenwrap for testing, hopefully temporary
-		FlxSpriteUtil.screenWrap(this);
-
 		super.update(elapsed);
 	}
 
 	private function AssignSprite() {
 		if (size == 0) {
 			loadGraphic("assets/images/Asteroids/Asteroid_Small.png");
+			createCircularBody(10);
+			setBodyMaterial(0.1, 0.2, 0.4, 1, 0.001);
 		} else if (size == 1) {
 			// 50% chance of being the mineral version
 			if (FlxG.random.bool(50)) {
@@ -65,6 +63,8 @@ class Asteroid extends FlxSprite {
 			} else {
 				loadGraphic("assets/images/Asteroids/Asteroid_Medium_Minerals.png");
 			}
+			createCircularBody(20);
+			setBodyMaterial(0.1, 0.2, 0.4, 10, 0.001);
 		} else if (size == 2) {
 			if (FlxG.random.bool(50)) {
 				loadGraphic("assets/images/Asteroids/Asteroid_Large.png");
