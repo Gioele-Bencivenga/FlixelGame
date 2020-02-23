@@ -1,20 +1,29 @@
+import flixel.addons.nape.FlxNapeSpace;
+import nape.callbacks.*;
 import flixel.FlxG;
-import flixel.util.FlxSpriteUtil;
-import flixel.FlxSprite;
 import flixel.addons.nape.FlxNapeSprite;
 
 class Asteroid extends FlxNapeSprite {
 	// asteroid sizes are small(0), medium(1), large(2), huge(3)
-	var size:Int;
+	public var size:Int;
+
+	// callback bodies needed for collision listening
+	var CBODYAsteroid:CbType;
+
+	// each asteroid starts with 2 integrity, hitting an asteroid with 1 less size only takes 1 integrity away
+	// hitting an asteroid of equal or bigger size takes all integrity away, breaking the ateroid into smaller
+	// chunks, hitting an asteroid with less than 1 less size doesn't do any damage
+	// this mechanic may change
+	var integrity:Int;
 
 	public function new() {
 		super();
-		
+
 		// smooth rotations, bad performance
 		antialiasing = true;
 	}
 
-	public function create(_x:Int = 0, _y:Int = 0, _xVelocity:Float = 0, _yVelocity:Float = 0, _size:Int = -1):Asteroid {
+	public function create(_x:Int = 0, _y:Int = 0, _size:Int = -1):Asteroid {
 		// I don't get why and if you need to set true on visible and active when you are already setting exist
 		// call update() and draw() on it
 		exists = true;
@@ -22,8 +31,6 @@ class Asteroid extends FlxNapeSprite {
 		visible = true;
 		// call update() on it
 		active = true;
-		// make it collidable
-		solid = true;
 
 		// if we created the asteroid and set at least 1 coordinate or its size
 		if (_x != 0 || _y != 0 || _size != -1) {
@@ -38,11 +45,25 @@ class Asteroid extends FlxNapeSprite {
 
 		AssignSprite();
 
+		// adding CBODY
+		CBODYAsteroid = new CbType();
+		body.cbTypes.add(CBODYAsteroid);
+
+		// we create an interaction listener that listens for the begin of a collision interaction between asteroids and any other body, calling OnCollision
+		var collisionListener = new InteractionListener(CbEvent.BEGIN, InteractionType.COLLISION, CBODYAsteroid, CbType.ANY_BODY, OnCollision);
+		FlxNapeSpace.space.listeners.add(collisionListener);
+
 		return this;
 	}
 
 	override public function update(elapsed:Float) {
 		super.update(elapsed);
+	}
+
+	private function OnCollision(clbk:InteractionCallback) {
+		trace("Asteroid collided");
+		// find out how to get information from the body that we collided with
+		//this.integrity -= clbk.int1.castBody
 	}
 
 	private function AssignSprite() {
@@ -75,6 +96,8 @@ class Asteroid extends FlxNapeSprite {
 			}
 			createCircularBody(90);
 			setBodyMaterial(1, 0.2, 0.4, 8, 0.001);
+		} else if (size == -1) {
+			trace("Houston, we got a problem");
 		}
 	}
 }
