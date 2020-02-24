@@ -1,3 +1,5 @@
+import flixel.effects.particles.FlxParticle;
+import flixel.effects.particles.FlxEmitter;
 import nape.util.Debug;
 import nape.geom.Vec3;
 import js.html.svg.Point;
@@ -15,6 +17,9 @@ class Player extends FlxNapeSprite {
 	// vector used in the movement
 	var direction:Vec2;
 
+	// particle emitter for thrusters
+	var emitter:FlxEmitter;
+
 	public function new() {
 		// we create the sprite at the centre of the screen
 		super(FlxG.width / 2, FlxG.height / 2);
@@ -28,7 +33,19 @@ class Player extends FlxNapeSprite {
 		loadGraphic("assets/images/Spaceships/ship.png");
 		createCircularBody(15);
 		setBodyMaterial(0.1, 0.2, 0.4, 1, 0.001);
-		body.debugDraw = false;
+
+		// initializing the emitters
+		emitter = new FlxEmitter(x, y);
+
+		// emitters are just FlxGroups that help you recycle particles for repeated usage. 
+		// As such, we need to add the particle into the emitters before we can use them.
+        for (i in 0 ... 100)
+        {
+        	var p = new FlxParticle();
+        	p.makeGraphic(10, 10, 0xFFFFFFFF);
+        	p.exists = false;
+        	emitter.add(p);
+		}
 	}
 
 	override public function update(elapsed:Float) {
