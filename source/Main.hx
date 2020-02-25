@@ -1,6 +1,5 @@
 package;
 
-import echo.Echo;
 import flixel.FlxG;
 import flixel.FlxGame;
 import openfl.display.Sprite;

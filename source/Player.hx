@@ -1,11 +1,7 @@
+import nape.callbacks.*;
 import flixel.effects.particles.FlxParticle;
 import flixel.effects.particles.FlxEmitter;
-import nape.util.Debug;
-import nape.geom.Vec3;
-import js.html.svg.Point;
 import nape.geom.Vec2;
-import flixel.util.FlxSpriteUtil;
-import flixel.math.FlxPoint;
 import flixel.FlxG;
 import flixel.addons.nape.FlxNapeSprite;
 
@@ -19,6 +15,11 @@ class Player extends FlxNapeSprite {
 
 	// particle emitter for thrusters
 	var emitter:FlxEmitter;
+
+	// callback bodytype needed for collision listening
+	public static var CBODYPlayer:CbType;
+
+	var integrity:Int = 10;
 
 	public function new() {
 		// we create the sprite at the centre of the screen
@@ -37,15 +38,19 @@ class Player extends FlxNapeSprite {
 		// initializing the emitters
 		emitter = new FlxEmitter(x, y);
 
-		// emitters are just FlxGroups that help you recycle particles for repeated usage. 
+		// emitters are just FlxGroups that help you recycle particles for repeated usage.
 		// As such, we need to add the particle into the emitters before we can use them.
-        for (i in 0 ... 100)
-        {
-        	var p = new FlxParticle();
-        	p.makeGraphic(10, 10, 0xFFFFFFFF);
-        	p.exists = false;
-        	emitter.add(p);
+		for (i in 0...100) {
+			var p = new FlxParticle();
+			p.makeGraphic(10, 10, 0xFFFFFFFF);
+			p.exists = false;
+			emitter.add(p);
 		}
+
+		// adding CBODY
+		CBODYPlayer = new CbType();
+		body.cbTypes.add(CBODYPlayer);
+		body.userData.data = this;
 	}
 
 	override public function update(elapsed:Float) {
@@ -72,5 +77,15 @@ class Player extends FlxNapeSprite {
 		if (FlxG.keys.anyPressed([D, RIGHT])) {
 			body.angularVel += turnVelocity;
 		}
+	}
+
+	public function ChangeIntegrity(_amount:Int) {
+		if (integrity > 0) {
+			integrity += _amount;
+		}
+	}
+
+	public function GetIntegrity():Int {
+		return integrity;
 	}
 }
