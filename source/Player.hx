@@ -6,37 +6,37 @@ import flixel.FlxG;
 import flixel.addons.nape.FlxNapeSprite;
 
 class Player extends FlxNapeSprite {
-	var thrust:Float = 1.7;
-	// the speed at which the player is able to turn left/right
-	var turnVelocity:Float = 1;
+	var thrust:Float; // aka speed
+	var integrity:Int; // aka health
+	var turnVelocity:Float; // spinning speed
 
-	// vector used in the movement
-	var direction:Vec2;
+	var direction:Vec2; // vector used in the movement
 
-	// particle emitter for thrusters
-	var emitter:FlxEmitter;
+	var emitter:FlxEmitter; // particle emitter for thrusters
 
-	// callback bodytype needed for collision listening
-	public static var CBODYPlayer:CbType;
-
-	var integrity:Int = 10;
+	public static var CBODYPlayer:CbType = new CbType(); // callback bodytype needed for collision listening
 
 	public function new() {
-		// we create the sprite at the centre of the screen
-		super(FlxG.width / 2, FlxG.height / 2);
+		super(FlxG.width / 2, FlxG.height / 2); // we create the obj at the centre of the screen
 
-		// setting a small amount of drag so that the player will slow down over time
-		setDrag(0.995, 0.85);
+		// STATS STUFF
+		integrity = 1000;
+		turnVelocity = 1;
+		thrust = 1.8;
 
-		// smooth rotations, affects perfomance
-		antialiasing = true;
+		// GRAPHIC STUFF
+		antialiasing = true; // smooths rotations, affects perfomance
+		loadGraphic(AssetPaths.ship__png);
 
-		loadGraphic("assets/images/Spaceships/ship.png");
-		createCircularBody(15);
+		// PHYSICS STUFF
+		createCircularBody(15); // creating hitbox
 		setBodyMaterial(0.1, 0.2, 0.4, 1, 0.001);
+		setDrag(0.995, 0.85); // setting a small amount of drag so that the player will slow down over time
+		body.cbTypes.add(CBODYPlayer);
+		body.userData.data = this; // we add this to the body's userdata so that we can access variables when colliding
 
-		// initializing the emitters
-		emitter = new FlxEmitter(x, y);
+		// PARTICLE STUFF
+		emitter = new FlxEmitter(x, y); // initializing the emitter
 
 		// emitters are just FlxGroups that help you recycle particles for repeated usage.
 		// As such, we need to add the particle into the emitters before we can use them.
@@ -46,11 +46,6 @@ class Player extends FlxNapeSprite {
 			p.exists = false;
 			emitter.add(p);
 		}
-
-		// adding CBODY
-		CBODYPlayer = new CbType();
-		body.cbTypes.add(CBODYPlayer);
-		body.userData.data = this;
 	}
 
 	override public function update(elapsed:Float) {
@@ -60,15 +55,12 @@ class Player extends FlxNapeSprite {
 	}
 
 	private function ProcessMovement() {
-		// if any key from the array is pressed
-		if (FlxG.keys.anyPressed([W, UP])) {
+		if (FlxG.keys.anyPressed([W, UP])) { // if any key from the array is pressed
 			direction = Vec2.fromPolar(thrust, body.rotation);
-			// applying the impulse in the direction vector moves the body in the direction it's facing
-			body.applyImpulse(direction);
+			body.applyImpulse(direction); // applying the impulse in the direction vector moves the body in the direction it's facing
 		}
 		if (FlxG.keys.anyPressed([S, DOWN])) {
 			direction = Vec2.fromPolar(-(thrust / 2), body.rotation);
-			// applying the impulse in the direction vector moves the body in the direction it's facing
 			body.applyImpulse(direction);
 		}
 		if (FlxG.keys.anyPressed([A, LEFT])) {
@@ -82,6 +74,10 @@ class Player extends FlxNapeSprite {
 	public function ChangeIntegrity(_amount:Int) {
 		if (integrity > 0) {
 			integrity += _amount;
+		}
+		
+		if (integrity <= 0){
+			kill();
 		}
 	}
 
