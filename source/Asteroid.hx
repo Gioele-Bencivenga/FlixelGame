@@ -10,7 +10,7 @@ class Asteroid extends FlxNapeSprite {
 	// needs to be public since a getter method won't work for reasons beyond my comprehension
 	public static var CBODYAsteroid:CbType = new CbType();
 
-	var integrity:Int; // health 
+	var integrity:Int; // health
 
 	public function new() {
 		super();
@@ -18,31 +18,23 @@ class Asteroid extends FlxNapeSprite {
 		antialiasing = true; // smooth rotations, bad performance
 	}
 
-	public function create(_x:Int = 0, _y:Int = 0, _size:Int = -1, _xVel = 0, _yVel = 0):Asteroid {
-		revive();
+	public function create(_x:Int = 0, _y:Int = 0, _size:Int = 0, _xVel = 0, _yVel = 0):Asteroid {
+		x = _x;
+		y = _y;
 
-		if (_x != 0) {
-			x = _x;
-		} else {
-			x = FlxG.random.int(0, FlxG.width);
+		// sometimes size will reach different values (usually when colliding with asteroids of size 1)
+		// so this will prevent the game from crashing 
+		if (_size != 0 && _size != 1 && _size != 2 && _size != 3) {
+			_size = 0;
 		}
-		if (_y != 0) {
-			y = _y;
-		} else {
-			y = FlxG.random.int(0, FlxG.height);
-		}
-		if (_size != -1) {
-			size = _size;
-		} else {
-			size = FlxG.random.int(0, 3);
-		}
+		size = _size;
 
 		AssignSprite();
 		AssignIntegrity();
 		AssignBody();
 
 		body.velocity.setxy(_xVel, _yVel);
-		body.applyAngularImpulse(FlxG.random.float(50, 200)); // figure out why they don't spin
+		body.angularVel = FlxG.random.float(-7, 7);
 
 		return this;
 	}
@@ -53,14 +45,13 @@ class Asteroid extends FlxNapeSprite {
 
 	private function AssignIntegrity() {
 		if (size == 0) {
-			integrity = 2;
+			integrity = 5;
 		} else if (size == 1) {
-			integrity = 4;
+			integrity = 9;
 		} else if (size == 2) {
-			integrity = 8;
+			integrity = 14;
 		} else if (size == 3) {
-			//integrity = 15;
-			integrity = 1;
+			integrity = 18;
 		} else {
 			trace("Size is different than expected values?!?!?");
 		}

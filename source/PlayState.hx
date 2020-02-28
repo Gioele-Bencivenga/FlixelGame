@@ -1,6 +1,6 @@
 package;
 
-import nape.phys.Body;
+import flixel.util.FlxTimer;
 import nape.callbacks.*;
 import flixel.math.FlxMath;
 import flixel.FlxCamera.FlxCameraFollowStyle;
@@ -18,6 +18,9 @@ class PlayState extends FlxState {
 
 	var player:Player;
 
+	// timer used to spawn asteroids at an interval
+	var asteroidTimer:FlxTimer;
+
 	override public function create():Void {
 		// initializing the space for physics simulation
 		FlxNapeSpace.init();
@@ -26,24 +29,29 @@ class PlayState extends FlxState {
 
 		super.create();
 
-		// adding background particles
-		starfield = new FlxStarField2D();
-		add(starfield);
+		// maybe find other backgrounds since this one is meh
+		//starfield = new FlxStarField2D();
+		//add(starfield);
 
 		// adding player
 		player = new Player();
 		add(player);
 
+		/// CAMERA
 		FlxG.camera.follow(player, FlxCameraFollowStyle.LOCKON);
 		camera.followLead.x += 5;
 		camera.followLead.y += 5;
+		setZoom(FlxG.camera.zoom -= 0.3);
 
-		// adding asteroids
+		// ASTEROIDS
 		asteroids = new FlxTypedGroup<Asteroid>();
-		SpawnAsteroid(Std.int(player.x - 500), Std.int(player.y), 3, 100);
-		SpawnAsteroid(Std.int(player.x + 500), Std.int(player.y), 3, -100);
+		SpawnAsteroid(Std.int(player.x + FlxG.random.int(-500, 500)), Std.int(player.y - 500), 3, FlxG.random.int(-100, 100), 300);
+		SpawnAsteroid(Std.int(player.x + FlxG.random.int(-500, 500)), Std.int(player.y - 500), 3, FlxG.random.int(-100, 100), 300);
+		SpawnAsteroid(Std.int(player.x + FlxG.random.int(-500, 500)), Std.int(player.y - 500), 3, FlxG.random.int(-100, 100), 300);
+		SpawnAsteroid(Std.int(player.x + FlxG.random.int(-500, 500)), Std.int(player.y - 500), 3, FlxG.random.int(-100, 100), 300);
 		add(asteroids);
 
+		/// COLLISIONS
 		// asteroid to asteroid collision listener
 		var colListAsterToAster = new InteractionListener(CbEvent.BEGIN, InteractionType.COLLISION, Asteroid.CBODYAsteroid, Asteroid.CBODYAsteroid,
 			CollAsteroidToAsteroid);
@@ -53,6 +61,10 @@ class PlayState extends FlxState {
 		var colListAsterToPlayer = new InteractionListener(CbEvent.BEGIN, InteractionType.COLLISION, Asteroid.CBODYAsteroid, Player.CBODYPlayer,
 			CollAsteroidToPlayer);
 		FlxNapeSpace.space.listeners.add(colListAsterToPlayer);
+
+		/// TIMER
+		asteroidTimer = new FlxTimer();
+		asteroidTimer.start(2, GenerateAsteroid, 0);
 	}
 
 	// when the player collides he loses 1 integrity
@@ -69,39 +81,50 @@ class PlayState extends FlxState {
 
 	public function CollAsteroidToAsteroid(i:InteractionCallback) {
 		var asteroid1:Asteroid = i.int1.userData.data;
-		//var asteroid2:Asteroid = i.int2.userData.data;
+		var asteroid2:Asteroid = i.int2.userData.data;
 
-		asteroid1.ChangeIntegrity(-1);
-		//asteroid2.ChangeIntegrity(-1);
+		asteroid1.ChangeIntegrity(-Std.int(asteroid2.GetIntegrity() / 2));
+		asteroid2.ChangeIntegrity(-Std.int(asteroid1.GetIntegrity() / 2));
 
 		if (asteroid1.GetIntegrity() <= 0) {
 			FragmentAsteroid(asteroid1);
 		}
-		//if (asteroid2.GetIntegrity() <= 0) {
-		//	FragmentAsteroid(asteroid2);
-		//}
+		if (asteroid2.GetIntegrity() <= 0) {
+			FragmentAsteroid(asteroid2);
+		}
 	}
 
+	// this function creates between 3 and 6 asteroids (chunks) that are smaller than the one passed as an argument (_asteroid)
+	// the chunks are created at the center of the _asteroid, with a random offset to help them not get stuck overlapping
+	// initially it was calling SpawnAsteroid() but that was changed for reasons I have now forgot
 	private function FragmentAsteroid(_asteroid:Asteroid) {
 		if (_asteroid.GetSize() > 0) { // if the asteroid is big enough to fragment
-			var numOfChunks = FlxG.random.int(2, 5);
+			var numOfChunks = FlxG.random.int(3, 6);
 			var maxOff = 40; // maximum offset variable
 
 			for (i in 0...numOfChunks) {
-				var offset1 = FlxG.random.int(-maxOff, maxOff);
-				var offset2 = FlxG.random.int(-maxOff, maxOff);
+				var offsetX = FlxG.random.int(-maxOff, maxOff);
+				var offsetY = FlxG.random.int(-maxOff, maxOff);
 
-				var asteroid = asteroids.recycle(Asteroid.new);
-				asteroid.create(Std.int((_asteroid.x + asteroid.width / 2))
-					+ offset1, Std.int((_asteroid.y + asteroid.height / 2))
-					+ offset2,
+				var newAsteroid = asteroids.recycle(Asteroid.new);
+				newAsteroid.create(Std.int((_asteroid.x + _asteroid.width / 2))
+					+ offsetX, Std.int((_asteroid.y + _asteroid.height / 2))
+					+ offsetY,
 					_asteroid.GetSize()
 					- 1, FlxG.random.int(-150, 150), FlxG.random.int(-150, 150));
 			}
 		}
 	}
 
-	private function SpawnAsteroid(_x:Int = 0, _y:Int = 0, _size = -1, _xVel = 0, _yVel = 0) {
+	// function used by the timer for creating asteroid in the distance at a set interval
+	private function GenerateAsteroid(_timer:FlxTimer):Void {
+		SpawnAsteroid(Std.int(player.x + FlxG.random.int(-500, 500)), Std.int(player.y - 800), 3, FlxG.random.int(-100, 100), 300);
+		SpawnAsteroid(Std.int(player.x + FlxG.random.int(-500, 500)), Std.int(player.y - 800), 3, FlxG.random.int(-100, 100), 300);
+		SpawnAsteroid(Std.int(player.x + FlxG.random.int(-500, 500)), Std.int(player.y - 800), 3, FlxG.random.int(-100, 100), 300);
+	}
+
+	// this function exists just for the convenience of not rewriting asteroids.recycle every time
+	private function SpawnAsteroid(_x:Int = 0, _y:Int = 0, _size = 0, _xVel = 0, _yVel = 0) {
 		var asteroid = asteroids.recycle(Asteroid.new);
 		asteroid.create(_x, _y, _size, _xVel, _yVel);
 	}

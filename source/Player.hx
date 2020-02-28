@@ -19,23 +19,23 @@ class Player extends FlxNapeSprite {
 	public function new() {
 		super(FlxG.width / 2, FlxG.height / 2); // we create the obj at the centre of the screen
 
-		// STATS STUFF
-		integrity = 1000;
+		/// STATS STUFF
+		integrity = 10;
 		turnVelocity = 1;
 		thrust = 1.8;
 
-		// GRAPHIC STUFF
+		/// GRAPHIC STUFF
 		antialiasing = true; // smooths rotations, affects perfomance
 		loadGraphic(AssetPaths.ship__png);
 
-		// PHYSICS STUFF
+		/// PHYSICS STUFF
 		createCircularBody(15); // creating hitbox
 		setBodyMaterial(0.1, 0.2, 0.4, 1, 0.001);
 		setDrag(0.995, 0.85); // setting a small amount of drag so that the player will slow down over time
 		body.cbTypes.add(CBODYPlayer);
 		body.userData.data = this; // we add this to the body's userdata so that we can access variables when colliding
 
-		// PARTICLE STUFF
+		/// PARTICLE STUFF
 		emitter = new FlxEmitter(x, y); // initializing the emitter
 
 		// emitters are just FlxGroups that help you recycle particles for repeated usage.
