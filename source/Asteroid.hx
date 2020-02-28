@@ -3,14 +3,13 @@ import flixel.FlxG;
 import flixel.addons.nape.FlxNapeSprite;
 
 class Asteroid extends FlxNapeSprite {
-	// asteroid sizes are small(0), medium(1), large(2), huge(3)
-	var size:Int;
+	var size:Int; // asteroid sizes are small(0), medium(1), large(2), huge(3)
+	var integrity:Int; // health
+	var damage:Int;
 
 	// callback bodytype needed for collision listening
 	// needs to be public since a getter method won't work for reasons beyond my comprehension
 	public static var CBODYAsteroid:CbType = new CbType();
-
-	var integrity:Int; // health
 
 	public function new() {
 		super();
@@ -23,14 +22,15 @@ class Asteroid extends FlxNapeSprite {
 		y = _y;
 
 		// sometimes size will reach different values (usually when colliding with asteroids of size 1)
-		// so this will prevent the game from crashing 
+		// so this will prevent the game from crashing
 		if (_size != 0 && _size != 1 && _size != 2 && _size != 3) {
 			_size = 0;
 		}
 		size = _size;
 
-		AssignSprite();
+		AssignDamage();
 		AssignIntegrity();
+		AssignSprite();
 		AssignBody();
 
 		body.velocity.setxy(_xVel, _yVel);
@@ -47,14 +47,18 @@ class Asteroid extends FlxNapeSprite {
 		if (size == 0) {
 			integrity = 5;
 		} else if (size == 1) {
-			integrity = 9;
+			integrity = 15;
 		} else if (size == 2) {
-			integrity = 14;
+			integrity = 25;
 		} else if (size == 3) {
-			integrity = 18;
+			integrity = 35;
 		} else {
 			trace("Size is different than expected values?!?!?");
 		}
+	}
+
+	private function AssignDamage() {
+		damage = size + 1;
 	}
 
 	private function AssignBody() {
@@ -121,5 +125,9 @@ class Asteroid extends FlxNapeSprite {
 
 	public function GetSize() {
 		return size;
+	}
+
+	public function GetDamage() {
+		return damage;
 	}
 }
