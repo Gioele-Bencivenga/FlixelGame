@@ -1,6 +1,8 @@
 package;
 
-import flixel.util.FlxTimer;
+import flixel.addons.nape.FlxNapeSprite;
+import flixel.text.FlxText;
+import flixel.util.*;
 import nape.callbacks.*;
 import flixel.math.FlxMath;
 import flixel.FlxCamera.FlxCameraFollowStyle;
@@ -16,14 +18,20 @@ class PlayState extends FlxState {
 	var player:Player;
 
 	// group of asteroids
-	static public var asteroids:FlxTypedGroup<Asteroid>; // having collisions in groups improves performance
-
+	public static var asteroids:FlxTypedGroup<Asteroid>; // having collisions in groups improves performance
 	// timer used to spawn asteroids at an interval
 	var asteroidTimer:FlxTimer;
 	// timer used to kill asteroids too far away
 	var asteroidKillTimer:FlxTimer;
-
+	
 	var asteroidSpawnRate:Int; // how often we spawn a batch of asteroids
+
+	// group of bullets
+	public static var bullets:FlxTypedGroup<Bullet>;
+	// timer to kill far bullets
+	var bulletKillTimer:FlxTimer;
+
+	var text:FlxText;
 
 	override public function create():Void {
 		// initializing the space for physics simulation
@@ -47,13 +55,14 @@ class PlayState extends FlxState {
 		camera.followLead.y += 5;
 		setZoom(FlxG.camera.zoom -= 0.3);
 
-		// ASTEROIDS
+		/// ASTEROIDS
 		asteroids = new FlxTypedGroup<Asteroid>();
-		SpawnAsteroid(Std.int(player.x + FlxG.random.int(-300, 300)), Std.int(player.y - 300), 3, FlxG.random.int(-100, 100), 200);
-		// SpawnAsteroid(Std.int(player.x + FlxG.random.int(-500, 500)), Std.int(player.y - 500), 3, FlxG.random.int(-100, 100), 200);
-		// SpawnAsteroid(Std.int(player.x + FlxG.random.int(-500, 500)), Std.int(player.y - 500), 3, FlxG.random.int(-100, 100), 200);
-		// SpawnAsteroid(Std.int(player.x + FlxG.random.int(-500, 500)), Std.int(player.y - 500), 3, FlxG.random.int(-100, 100), 200);
 		add(asteroids);
+
+		/// BULLETS
+		var numOfBullets:Int = 32; // we'll have 32 bullets recycled over and over
+		bullets = new FlxTypedGroup(numOfBullets);
+		add(bullets);
 
 		/// COLLISIONS
 		// asteroid to asteroid collision listener
@@ -66,27 +75,35 @@ class PlayState extends FlxState {
 			CollAsteroidToPlayer);
 		FlxNapeSpace.space.listeners.add(colListAsterToPlayer);
 
+		// bullet to asteroid collision listener
+		var colListBullToAster = new InteractionListener(CbEvent.BEGIN, InteractionType.COLLISION, Bullet.CBODYBullet, Asteroid.CBODYAsteroid,
+			CollBulletToAsteroid);
+		FlxNapeSpace.space.listeners.add(colListBullToAster);
+
 		/// TIMERS
-		asteroidSpawnRate = 3;
+		asteroidSpawnRate = 1;
+		// asteroid spawn
 		asteroidTimer = new FlxTimer();
-		asteroidKillTimer = new FlxTimer();
 		asteroidTimer.start(asteroidSpawnRate, GenerateAsteroids, 0);
+		// asteroid kill
+		asteroidKillTimer = new FlxTimer();
 		asteroidKillTimer.start(1, RemoveAsteroids, 0);
+		// bullet kill
+		bulletKillTimer = new FlxTimer();
+		bulletKillTimer.start(1, RemoveBullets, 0);
+
+		text = new FlxText(player.x, player.y, FlxG.width);
+		text.setFormat(null, 32, FlxColor.WHITE, CENTER, OUTLINE);
+		add(text);
 	}
 
-	// when the player collides he loses 1 integrity
-	public function CollAsteroidToPlayer(i:InteractionCallback) {
+	private function CollAsteroidToPlayer(i:InteractionCallback) {
 		var asteroid:Asteroid = i.int1.userData.data;
 
-		asteroid.ChangeIntegrity(-1);
 		player.ChangeIntegrity(-asteroid.GetDamage());
-
-		if (asteroid.GetIntegrity() <= 0) {
-			FragmentAsteroid(asteroid);
-		}
 	}
 
-	public function CollAsteroidToAsteroid(i:InteractionCallback) {
+	private function CollAsteroidToAsteroid(i:InteractionCallback) {
 		var asteroid1:Asteroid = i.int1.userData.data;
 		var asteroid2:Asteroid = i.int2.userData.data;
 
@@ -98,6 +115,18 @@ class PlayState extends FlxState {
 		}
 		if (asteroid2.GetIntegrity() <= 0) {
 			FragmentAsteroid(asteroid2);
+		}
+	}
+
+	private function CollBulletToAsteroid(i:InteractionCallback) {
+		var bullet:Bullet = i.int1.userData.data;
+		var asteroid:Asteroid = i.int2.userData.data;
+
+		asteroid.ChangeIntegrity(-bullet.GetDamage());
+		bullet.kill();
+
+		if (asteroid.GetIntegrity() <= 0) {
+			FragmentAsteroid(asteroid);
 		}
 	}
 
@@ -127,52 +156,63 @@ class PlayState extends FlxState {
 	private function GenerateAsteroids(_timer:FlxTimer):Void {
 		var asteroidSpawnNumber; // how many asteroids for each side
 
-		// we don't want to overwhelm the player
-		if (asteroids.countLiving() > 60) {
+		// we don't want to overwhelm the player too much
+		if (asteroids.countLiving() > 140) {
 			asteroidSpawnNumber = 0;
-		} else if (asteroids.countLiving() > 20) {
+		} else if (asteroids.countLiving() > 110) {
 			asteroidSpawnNumber = 1;
-		} else if (asteroids.countLiving() > 10) {
+		} else if (asteroids.countLiving() > 70) {
 			asteroidSpawnNumber = 2;
-		} else {
+		} else if (asteroids.countLiving() > 60) {
 			asteroidSpawnNumber = 3;
+		} else {
+			asteroidSpawnNumber = 6;
 		}
 
-		var size = FlxG.random.int(2, 3); // we spawn asteroids of size 2 and 3
 		var baseSpeed = 100;
 		var distanceFromPlayer = 2000;
 		// asteroid batch around player
 		for (i in 0...asteroidSpawnNumber) {
-			var speedVariation = FlxG.random.int(-50, 50); // each asteroid has a speed slightly different than another
+			var size = FlxG.random.int(1, 3); // each asteroid is of different size
+			var speedVariation = FlxG.random.int(-70, 70); // each asteroid has a speed slightly different than another
 			// coming from left
 			SpawnAsteroid(Std.int(player.x - distanceFromPlayer),
-				Std.int(player.y + FlxG.random.int(-Std.int(distanceFromPlayer / 2), Std.int(distanceFromPlayer / 2))), size, baseSpeed + speedVariation,
-				FlxG.random.int(-Std.int(baseSpeed / 2), Std.int(baseSpeed / 2)));
+				Std.int(player.y + FlxG.random.int(-Std.int(distanceFromPlayer / 1.5), Std.int(distanceFromPlayer / 1.5))), size, baseSpeed + speedVariation,
+				FlxG.random.int(-Std.int(baseSpeed / 1.5), Std.int(baseSpeed / 1.5)));
 
 			// coming from above
-			SpawnAsteroid(Std.int(player.x + FlxG.random.int(-Std.int(distanceFromPlayer / 2), Std.int(distanceFromPlayer / 2))),
-				Std.int(player.y - distanceFromPlayer), size, FlxG.random.int(-Std.int(baseSpeed / 2), Std.int(baseSpeed / 2)), baseSpeed + speedVariation);
+			SpawnAsteroid(Std.int(player.x + FlxG.random.int(-Std.int(distanceFromPlayer / 1.5), Std.int(distanceFromPlayer / 1.5))),
+				Std.int(player.y - distanceFromPlayer), size, FlxG.random.int(-Std.int(baseSpeed / 1.5), Std.int(baseSpeed / 1.5)), baseSpeed + speedVariation);
 
 			// coming from right
 			SpawnAsteroid(Std.int(player.x + distanceFromPlayer),
-				Std.int(player.y + FlxG.random.int(-Std.int(distanceFromPlayer / 2), Std.int(distanceFromPlayer / 2))), size, -(baseSpeed + speedVariation),
-				FlxG.random.int(-Std.int(baseSpeed / 2), Std.int(baseSpeed / 2)));
+				Std.int(player.y + FlxG.random.int(-Std.int(distanceFromPlayer / 1.5), Std.int(distanceFromPlayer / 1.5))), size,
+				-(baseSpeed + speedVariation), FlxG.random.int(-Std.int(baseSpeed / 1.5), Std.int(baseSpeed / 1.5)));
 
 			// coming from below
-			SpawnAsteroid(Std.int(player.x + FlxG.random.int(-Std.int(distanceFromPlayer / 2), Std.int(distanceFromPlayer / 2))),
-				Std.int(player.y + distanceFromPlayer), size, FlxG.random.int(-Std.int(baseSpeed / 2), Std.int(baseSpeed / 2)), -(baseSpeed + speedVariation));
+			SpawnAsteroid(Std.int(player.x + FlxG.random.int(-Std.int(distanceFromPlayer / 1.5), Std.int(distanceFromPlayer / 1.5))),
+				Std.int(player.y + distanceFromPlayer), size, FlxG.random.int(-Std.int(baseSpeed / 1.5), Std.int(baseSpeed / 1.5)), -(baseSpeed + speedVariation));
 		}
 	}
 
 	// function used by the killTimer for removing asteroid that are too far away
 	private function RemoveAsteroids(_timer:FlxTimer):Void {
-		// needs to be fixed, maybe use modulo opeerator? or calculate distance with points
-		for (asteroid in asteroids.members) {
-			var distanceFromPlayerX = asteroid.x - player.x;
-			var distanceFromPlayerY = asteroid.y - player.y;
-			
-			if (distanceFromPlayerX > 300 || distanceFromPlayerY > 300) {
+		var maxDistance = 3000;
+
+		for (asteroid in asteroids) {
+			if (!FlxMath.isDistanceWithin(asteroid, player, maxDistance)) {
 				asteroid.kill();
+			}
+		}
+	}
+
+	// function used by the killTimer for removing bullets that are too far away
+	private function RemoveBullets(_timer:FlxTimer):Void {
+		var maxDistance = 3000;
+
+		for (bullet in bullets) {
+			if (!FlxMath.isDistanceWithin(bullet, player, maxDistance)) {
+				bullet.kill();
 			}
 		}
 	}
@@ -198,6 +238,9 @@ class PlayState extends FlxState {
 		if (FlxG.keys.justPressed.COMMA) {
 			setZoom(FlxG.camera.zoom -= 0.3);
 		}
+
+		text.text = Std.string(asteroids.countLiving());
+		text.setPosition(player.x, player.y);
 	}
 
 	private function setZoom(_zoom:Float) {

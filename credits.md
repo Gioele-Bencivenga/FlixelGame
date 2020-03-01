@@ -11,6 +11,10 @@ Ships:
 - shuttle.png and shuttle2.png by Xevin at <https://opengameart.org/content/simple-spaceship>
 - SpeceShip2.png by Casoday at <https://opengameart.org/content/spaceship-12>
 
+Bullets:
+
+Master484 at <https://opengameart.org/content/bullet-collection-1-m484>
+
 ## Music
 
 ## Sounds

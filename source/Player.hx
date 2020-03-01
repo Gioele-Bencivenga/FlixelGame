@@ -1,3 +1,5 @@
+import nape.phys.BodyType;
+import flixel.util.FlxTimer;
 import nape.callbacks.*;
 import flixel.effects.particles.FlxParticle;
 import flixel.effects.particles.FlxEmitter;
@@ -12,6 +14,13 @@ class Player extends FlxNapeSprite {
 
 	var direction:Vec2; // vector used in the movement
 
+	var shotDamage:Int; // damage done by shooting
+	var rateOfFire:Float; // seconds between each shot
+
+	var canShoot:Bool; // pretty self explanatory flag
+
+	var shootTimer:FlxTimer; // timer used to reset the canShoot flag
+
 	var emitter:FlxEmitter; // particle emitter for thrusters
 
 	public static var CBODYPlayer:CbType = new CbType(); // callback bodytype needed for collision listening
@@ -20,20 +29,28 @@ class Player extends FlxNapeSprite {
 		super(FlxG.width / 2, FlxG.height / 2); // we create the obj at the centre of the screen
 
 		/// STATS STUFF
-		integrity = 20;
+		integrity = 100;
 		turnVelocity = 1;
-		thrust = 1.8;
+		thrust = 1.6;
+		// shooting
+		shotDamage = 7;
+		canShoot = true;
+		rateOfFire = 0.15; // 1 shot each rateOfFire seconds
 
 		/// GRAPHIC STUFF
 		antialiasing = true; // smooths rotations, affects perfomance
 		loadGraphic(AssetPaths.ship__png);
+		setGraphicSize(50);
 
 		/// PHYSICS STUFF
-		createCircularBody(15); // creating hitbox
+		createCircularBody(23); // creating hitbox
 		setBodyMaterial(0.1, 0.2, 0.4, 1, 0.001);
-		setDrag(0.995, 0.85); // setting a small amount of drag so that the player will slow down over time
+		setDrag(0.997, 0.83); // setting a small amount of drag so that the player will slow down over time
 		body.cbTypes.add(CBODYPlayer);
 		body.userData.data = this; // we add this to the body's userdata so that we can access variables when colliding
+
+		/// TIMER STUFF
+		shootTimer = new FlxTimer();
 
 		/// PARTICLE STUFF
 		emitter = new FlxEmitter(x, y); // initializing the emitter
@@ -51,10 +68,11 @@ class Player extends FlxNapeSprite {
 	override public function update(elapsed:Float) {
 		super.update(elapsed);
 
-		ProcessMovement();
+		ProcessInput();
 	}
 
-	private function ProcessMovement() {
+	private function ProcessInput() {
+		/// MOVEMENT
 		if (FlxG.keys.anyPressed([W, UP])) { // if any key from the array is pressed
 			direction = Vec2.fromPolar(thrust, body.rotation);
 			body.applyImpulse(direction); // applying the impulse in the direction vector moves the body in the direction it's facing
@@ -69,14 +87,33 @@ class Player extends FlxNapeSprite {
 		if (FlxG.keys.anyPressed([D, RIGHT])) {
 			body.angularVel += turnVelocity;
 		}
+
+		/// SHOOTING
+		if (FlxG.keys.anyPressed([J, SPACE])) {
+			if (canShoot) {
+				Shoot();
+				canShoot = false;
+				shootTimer.start(rateOfFire, ResetShotFlag, 1); // we start the timer so that after rateOfFire seconds we can shoot again
+			}
+		}
+	}
+
+	private function Shoot() {
+		var bullet = PlayState.bullets.recycle(Bullet.new);
+
+		bullet.create(x + (width / 2), y + (height / 2), 40, body.rotation, shotDamage);
+	}
+
+	private function ResetShotFlag(_timer:FlxTimer) {
+		canShoot = true;
 	}
 
 	public function ChangeIntegrity(_amount:Int) {
 		if (integrity > 0) {
 			integrity += _amount;
 		}
-		
-		if (integrity <= 0){
+
+		if (integrity <= 0) {
 			kill();
 		}
 	}

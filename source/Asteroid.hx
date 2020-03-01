@@ -7,9 +7,7 @@ class Asteroid extends FlxNapeSprite {
 	var integrity:Int; // health
 	var damage:Int;
 
-	// callback bodytype needed for collision listening
-	// needs to be public since a getter method won't work for reasons beyond my comprehension
-	public static var CBODYAsteroid:CbType = new CbType();
+	public static var CBODYAsteroid:CbType = new CbType(); // callback bodytype needed for collision listening
 
 	public function new() {
 		super();
