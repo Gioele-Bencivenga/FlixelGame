@@ -31,7 +31,6 @@ class Player extends FlxNapeSprite {
 		super(FlxG.width / 2, FlxG.height / 2); // we create the obj at the centre of the screen
 
 		/// STATS STUFF
-		thrust = 1.6;
 		integrity = 50;
 		turnVel = 1;
 		thrust = 25;
