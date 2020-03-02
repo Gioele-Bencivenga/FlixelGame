@@ -1,3 +1,4 @@
+import flixel.math.FlxPoint;
 import nape.phys.BodyType;
 import flixel.util.FlxTimer;
 import nape.callbacks.*;
@@ -10,7 +11,8 @@ import flixel.addons.nape.FlxNapeSprite;
 class Player extends FlxNapeSprite {
 	var thrust:Float; // aka speed
 	var integrity:Int; // aka health
-	var turnVelocity:Float; // spinning speed
+	var turnVel:Float; // spinning speed
+	var maxVel:Float; // maximum velocity
 
 	var direction:Vec2; // vector used in the movement
 
@@ -29,9 +31,11 @@ class Player extends FlxNapeSprite {
 		super(FlxG.width / 2, FlxG.height / 2); // we create the obj at the centre of the screen
 
 		/// STATS STUFF
-		integrity = 100;
-		turnVelocity = 1;
 		thrust = 1.6;
+		integrity = 50;
+		turnVel = 1;
+		thrust = 25;
+		maxVel = 400;
 		// shooting
 		shotDamage = 7;
 		canShoot = true;
@@ -43,9 +47,9 @@ class Player extends FlxNapeSprite {
 		setGraphicSize(50);
 
 		/// PHYSICS STUFF
-		createCircularBody(23); // creating hitbox
+		createCircularBody(22); // creating hitbox
 		setBodyMaterial(0.1, 0.2, 0.4, 1, 0.001);
-		setDrag(0.997, 0.83); // setting a small amount of drag so that the player will slow down over time
+		setDrag(0.998, 0.83); // setting a small amount of drag so that the player will slow down over time
 		body.cbTypes.add(CBODYPlayer);
 		body.userData.data = this; // we add this to the body's userdata so that we can access variables when colliding
 
@@ -74,18 +78,22 @@ class Player extends FlxNapeSprite {
 	private function ProcessInput() {
 		/// MOVEMENT
 		if (FlxG.keys.anyPressed([W, UP])) { // if any key from the array is pressed
-			direction = Vec2.fromPolar(thrust, body.rotation);
-			body.applyImpulse(direction); // applying the impulse in the direction vector moves the body in the direction it's facing
+			if (body.velocity.length <= maxVel) {
+				direction = Vec2.fromPolar(thrust, body.rotation);
+				body.applyImpulse(direction); // applying the impulse in the direction vector moves the body in the direction it's facing
+			}
 		}
 		if (FlxG.keys.anyPressed([S, DOWN])) {
-			direction = Vec2.fromPolar(-(thrust / 2), body.rotation);
-			body.applyImpulse(direction);
+			if (body.velocity.length <= maxVel) {
+				direction = Vec2.fromPolar(-(thrust / 2), body.rotation);
+				body.applyImpulse(direction);
+			}
 		}
 		if (FlxG.keys.anyPressed([A, LEFT])) {
-			body.angularVel -= turnVelocity;
+			body.angularVel -= turnVel;
 		}
 		if (FlxG.keys.anyPressed([D, RIGHT])) {
-			body.angularVel += turnVelocity;
+			body.angularVel += turnVel;
 		}
 
 		/// SHOOTING
@@ -101,7 +109,7 @@ class Player extends FlxNapeSprite {
 	private function Shoot() {
 		var bullet = PlayState.bullets.recycle(Bullet.new);
 
-		bullet.create(x + (width / 2), y + (height / 2), 40, body.rotation, shotDamage);
+		bullet.create(x + (width / 2), y + (height / 2), 45, body.rotation, shotDamage);
 	}
 
 	private function ResetShotFlag(_timer:FlxTimer) {

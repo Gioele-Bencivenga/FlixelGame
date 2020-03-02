@@ -19,15 +19,17 @@ class PlayState extends FlxState {
 
 	// group of asteroids
 	public static var asteroids:FlxTypedGroup<Asteroid>; // having collisions in groups improves performance
+
 	// timer used to spawn asteroids at an interval
 	var asteroidTimer:FlxTimer;
 	// timer used to kill asteroids too far away
 	var asteroidKillTimer:FlxTimer;
-	
+
 	var asteroidSpawnRate:Int; // how often we spawn a batch of asteroids
 
 	// group of bullets
 	public static var bullets:FlxTypedGroup<Bullet>;
+
 	// timer to kill far bullets
 	var bulletKillTimer:FlxTimer;
 
@@ -60,7 +62,7 @@ class PlayState extends FlxState {
 		add(asteroids);
 
 		/// BULLETS
-		var numOfBullets:Int = 32; // we'll have 32 bullets recycled over and over
+		var numOfBullets:Int = 128; // we'll have 128 bullets recycled over and over
 		bullets = new FlxTypedGroup(numOfBullets);
 		add(bullets);
 
@@ -79,6 +81,11 @@ class PlayState extends FlxState {
 		var colListBullToAster = new InteractionListener(CbEvent.BEGIN, InteractionType.COLLISION, Bullet.CBODYBullet, Asteroid.CBODYAsteroid,
 			CollBulletToAsteroid);
 		FlxNapeSpace.space.listeners.add(colListBullToAster);
+
+		// bullet to bullet collision listener (won't happen very often - if at all)
+		var colListBullToBull = new InteractionListener(CbEvent.BEGIN, InteractionType.COLLISION, Bullet.CBODYBullet, Bullet.CBODYBullet,
+			CollBulletToBullet);
+		FlxNapeSpace.space.listeners.add(colListBullToBull);
 
 		/// TIMERS
 		asteroidSpawnRate = 1;
@@ -128,6 +135,14 @@ class PlayState extends FlxState {
 		if (asteroid.GetIntegrity() <= 0) {
 			FragmentAsteroid(asteroid);
 		}
+	}
+	
+	private function CollBulletToBullet(i:InteractionCallback) {
+		var bullet1:Bullet = i.int1.userData.data;
+		var bullet2:Bullet = i.int2.userData.data;
+
+		bullet1.kill();
+		bullet2.kill();
 	}
 
 	// this function creates between 3 and 6 asteroids (chunks) that are smaller than the one passed as an argument (_asteroid)
@@ -182,7 +197,8 @@ class PlayState extends FlxState {
 
 			// coming from above
 			SpawnAsteroid(Std.int(player.x + FlxG.random.int(-Std.int(distanceFromPlayer / 1.5), Std.int(distanceFromPlayer / 1.5))),
-				Std.int(player.y - distanceFromPlayer), size, FlxG.random.int(-Std.int(baseSpeed / 1.5), Std.int(baseSpeed / 1.5)), baseSpeed + speedVariation);
+				Std.int(player.y - distanceFromPlayer), size, FlxG.random.int(-Std.int(baseSpeed / 1.5), Std.int(baseSpeed / 1.5)),
+				baseSpeed + speedVariation);
 
 			// coming from right
 			SpawnAsteroid(Std.int(player.x + distanceFromPlayer),
@@ -191,7 +207,8 @@ class PlayState extends FlxState {
 
 			// coming from below
 			SpawnAsteroid(Std.int(player.x + FlxG.random.int(-Std.int(distanceFromPlayer / 1.5), Std.int(distanceFromPlayer / 1.5))),
-				Std.int(player.y + distanceFromPlayer), size, FlxG.random.int(-Std.int(baseSpeed / 1.5), Std.int(baseSpeed / 1.5)), -(baseSpeed + speedVariation));
+				Std.int(player.y + distanceFromPlayer), size, FlxG.random.int(-Std.int(baseSpeed / 1.5), Std.int(baseSpeed / 1.5)),
+				-(baseSpeed + speedVariation));
 		}
 	}
 
