@@ -51,6 +51,9 @@ class PlayState extends FlxState {
 		player = new Player();
 		add(player);
 
+		// adding player's emitter
+		add(player.emitter);
+
 		/// CAMERA
 		FlxG.camera.follow(player, FlxCameraFollowStyle.LOCKON);
 		camera.followLead.x += 5;
@@ -81,11 +84,6 @@ class PlayState extends FlxState {
 		var colListBullToAster = new InteractionListener(CbEvent.BEGIN, InteractionType.COLLISION, Bullet.CBODYBullet, Asteroid.CBODYAsteroid,
 			CollBulletToAsteroid);
 		FlxNapeSpace.space.listeners.add(colListBullToAster);
-
-		// bullet to bullet collision listener (won't happen very often - if at all)
-		var colListBullToBull = new InteractionListener(CbEvent.BEGIN, InteractionType.COLLISION, Bullet.CBODYBullet, Bullet.CBODYBullet,
-			CollBulletToBullet);
-		FlxNapeSpace.space.listeners.add(colListBullToBull);
 
 		/// TIMERS
 		asteroidSpawnRate = 1;
@@ -135,14 +133,6 @@ class PlayState extends FlxState {
 		if (asteroid.GetIntegrity() <= 0) {
 			FragmentAsteroid(asteroid);
 		}
-	}
-	
-	private function CollBulletToBullet(i:InteractionCallback) {
-		var bullet1:Bullet = i.int1.userData.data;
-		var bullet2:Bullet = i.int2.userData.data;
-
-		bullet1.kill();
-		bullet2.kill();
 	}
 
 	// this function creates between 3 and 6 asteroids (chunks) that are smaller than the one passed as an argument (_asteroid)

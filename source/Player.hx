@@ -1,3 +1,4 @@
+import flixel.util.FlxColor;
 import flixel.math.FlxPoint;
 import nape.phys.BodyType;
 import flixel.util.FlxTimer;
@@ -23,7 +24,7 @@ class Player extends FlxNapeSprite {
 
 	var shootTimer:FlxTimer; // timer used to reset the canShoot flag
 
-	var emitter:FlxEmitter; // particle emitter for thrusters
+	public var emitter:FlxEmitter; // particle emitter for thrusters
 
 	public static var CBODYPlayer:CbType = new CbType(); // callback bodytype needed for collision listening
 
@@ -32,13 +33,14 @@ class Player extends FlxNapeSprite {
 
 		/// STATS STUFF
 		integrity = 50;
-		turnVel = 1;
-		thrust = 25;
-		maxVel = 400;
+		// turnVel = 1;
+		turnVel = 150;
+		thrust = 20;
+		maxVel = 500;
 		// shooting
-		shotDamage = 7;
+		shotDamage = 4;
 		canShoot = true;
-		rateOfFire = 0.15; // 1 shot each rateOfFire seconds
+		rateOfFire = 0.20; // 1 shot each rateOfFire seconds
 
 		/// GRAPHIC STUFF
 		antialiasing = true; // smooths rotations, affects perfomance
@@ -48,7 +50,7 @@ class Player extends FlxNapeSprite {
 		/// PHYSICS STUFF
 		createCircularBody(22); // creating hitbox
 		setBodyMaterial(0.1, 0.2, 0.4, 1, 0.001);
-		setDrag(0.998, 0.83); // setting a small amount of drag so that the player will slow down over time
+		setDrag(0.999, 0.93); // setting a small amount of drag so that the player will slow down over time
 		body.cbTypes.add(CBODYPlayer);
 		body.userData.data = this; // we add this to the body's userdata so that we can access variables when colliding
 
@@ -60,17 +62,24 @@ class Player extends FlxNapeSprite {
 
 		// emitters are just FlxGroups that help you recycle particles for repeated usage.
 		// As such, we need to add the particle into the emitters before we can use them.
-		for (i in 0...100) {
+		for (i in 0...50) {
 			var p = new FlxParticle();
-			p.makeGraphic(10, 10, 0xFFFFFFFF);
+			p.makeGraphic(10, 10, FlxColor.ORANGE);
 			p.exists = false;
 			emitter.add(p);
 		}
+
+		emitter.lifespan.set(0.1, 0.6);
+		emitter.setSize(25, 25);
+		emitter.speed.set(500);
+		emitter.launchAngle.set(body.rotation);
 	}
 
 	override public function update(elapsed:Float) {
 		super.update(elapsed);
 
+		emitter.setPosition(x + (width / 2), y + (height / 2));
+		emitter.launchAngle.set((body.rotation * 57.5) + 180);
 		ProcessInput();
 	}
 
@@ -80,6 +89,7 @@ class Player extends FlxNapeSprite {
 			if (body.velocity.length <= maxVel) {
 				direction = Vec2.fromPolar(thrust, body.rotation);
 				body.applyImpulse(direction); // applying the impulse in the direction vector moves the body in the direction it's facing
+				emitter.start(false, 0.01, 1);
 			}
 		}
 		if (FlxG.keys.anyPressed([S, DOWN])) {
@@ -89,26 +99,31 @@ class Player extends FlxNapeSprite {
 			}
 		}
 		if (FlxG.keys.anyPressed([A, LEFT])) {
-			body.angularVel -= turnVel;
+			// body.angularVel -= turnVel;
+			body.applyAngularImpulse(-turnVel);
 		}
 		if (FlxG.keys.anyPressed([D, RIGHT])) {
-			body.angularVel += turnVel;
+			// body.angularVel += turnVel;
+			body.applyAngularImpulse(turnVel);
 		}
 
 		/// SHOOTING
 		if (FlxG.keys.anyPressed([J, SPACE])) {
 			if (canShoot) {
 				Shoot();
-				canShoot = false;
-				shootTimer.start(rateOfFire, ResetShotFlag, 1); // we start the timer so that after rateOfFire seconds we can shoot again
 			}
 		}
 	}
 
 	private function Shoot() {
-		var bullet = PlayState.bullets.recycle(Bullet.new);
+		var bullet1 = PlayState.bullets.recycle(Bullet.new);
+		var bullet2 = PlayState.bullets.recycle(Bullet.new);
 
-		bullet.create(x + (width / 2), y + (height / 2), 45, body.rotation, shotDamage);
+		bullet1.create(x + (width / 2), y + (height / 2), 45, body.rotation + 0.01, shotDamage);
+		bullet2.create(x + (width / 2), y + (height / 2), 45, body.rotation - 0.01, shotDamage);
+
+		canShoot = false;
+		shootTimer.start(rateOfFire, ResetShotFlag, 1); // we start the timer so that after rateOfFire seconds we can shoot again
 	}
 
 	private function ResetShotFlag(_timer:FlxTimer) {

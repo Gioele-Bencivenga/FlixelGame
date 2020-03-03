@@ -24,9 +24,9 @@ class Bullet extends FlxNapeSprite {
 		damage = _damage;
 
 		loadGraphic(AssetPaths.bullet__png);
-		this.setGraphicSize(50);
+		this.setGraphicSize(40);
 
-        createCircularBody(15);
+        createCircularBody(10);
         body.rotation = _rotation; // we rotate the bullet to the direction the player is facing
 
 		body.cbTypes.add(CBODYBullet);

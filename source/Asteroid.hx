@@ -15,12 +15,11 @@ class Asteroid extends FlxNapeSprite {
 		antialiasing = true; // smooth rotations, bad performance
 	}
 
-	public function create(_x:Int = 0, _y:Int = 0, _size:Int = 0, _xVel = 0, _yVel = 0):Asteroid {
+	public function create(_x:Int = 0, _y:Int = 0, _size:Int = 0, _xVel = 0, _yVel = 0) {
 		x = _x;
 		y = _y;
 
 		// sometimes size will reach different values (usually when colliding with asteroids of size 1)
-		// so this will prevent the game from crashing
 		if (_size != 0 && _size != 1 && _size != 2 && _size != 3) {
 			_size = 0;
 		}
@@ -33,8 +32,6 @@ class Asteroid extends FlxNapeSprite {
 
 		body.velocity.setxy(_xVel, _yVel);
 		body.angularVel = FlxG.random.float(-7, 7);
-
-		return this;
 	}
 
 	override public function update(elapsed:Float) {
