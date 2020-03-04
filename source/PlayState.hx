@@ -1,6 +1,5 @@
 package;
 
-import flixel.addons.nape.FlxNapeSprite;
 import flixel.text.FlxText;
 import flixel.util.*;
 import nape.callbacks.*;
@@ -43,17 +42,15 @@ class PlayState extends FlxState {
 
 		super.create();
 
-		// maybe find other backgrounds since this one is meh
-		// starfield = new FlxStarField2D();
-		// add(starfield);
-
-		// adding player
+		/// STARFIELD
+		starfield = new FlxStarField2D(0, 0, 3000, 1500);
+		add(starfield);
+			
+		/// PLAYER
 		player = new Player();
+		add(player.emitter); // this first so the player gets drawn over the particles
 		add(player);
-
-		// adding player's emitter
-		add(player.emitter);
-
+		
 		/// CAMERA
 		FlxG.camera.follow(player, FlxCameraFollowStyle.LOCKON);
 		camera.followLead.x += 5;
@@ -248,6 +245,8 @@ class PlayState extends FlxState {
 
 		text.text = Std.string(asteroids.countLiving());
 		text.setPosition(player.x, player.y);
+
+		starfield.setPosition(player.x - (FlxG.width / 2), player.y - (FlxG.height / 2));
 	}
 
 	private function setZoom(_zoom:Float) {

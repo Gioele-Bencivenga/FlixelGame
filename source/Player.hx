@@ -64,22 +64,24 @@ class Player extends FlxNapeSprite {
 		// As such, we need to add the particle into the emitters before we can use them.
 		for (i in 0...50) {
 			var p = new FlxParticle();
-			p.makeGraphic(10, 10, FlxColor.ORANGE);
+			p.loadGraphic(AssetPaths.bulletExplosion__png);
 			p.exists = false;
 			emitter.add(p);
 		}
 
-		emitter.lifespan.set(0.1, 0.6);
-		emitter.setSize(25, 25);
-		emitter.speed.set(500);
-		emitter.launchAngle.set(body.rotation);
+		emitter.scale.set(0.8, 0.8, 1.2, 1.2, 2, 2, 3, 3);
+		emitter.lifespan.set(0.3, 0.5);
+		emitter.speed.set(1000);
+		emitter.alpha.set(1, 1, 0.2, 0.4);
+		emitter.color.set(FlxColor.ORANGE, FlxColor.YELLOW, FlxColor.GRAY, FlxColor.RED);
 	}
 
 	override public function update(elapsed:Float) {
 		super.update(elapsed);
 
-		emitter.setPosition(x + (width / 2), y + (height / 2));
-		emitter.launchAngle.set((body.rotation * 57.5) + 180);
+		emitter.focusOn(this); // instead of emitter.setPosition((x + (width / 2)), (y + (height / 2)));
+		emitter.launchAngle.set((body.rotation * 57.5) + 195, (body.rotation * 57.5) + 165);
+		emitter.launchAngle.set(angle - 165, angle - 195);
 		ProcessInput();
 	}
 
@@ -89,6 +91,7 @@ class Player extends FlxNapeSprite {
 			if (body.velocity.length <= maxVel) {
 				direction = Vec2.fromPolar(thrust, body.rotation);
 				body.applyImpulse(direction); // applying the impulse in the direction vector moves the body in the direction it's facing
+
 				emitter.start(false, 0.01, 1);
 			}
 		}
@@ -99,11 +102,9 @@ class Player extends FlxNapeSprite {
 			}
 		}
 		if (FlxG.keys.anyPressed([A, LEFT])) {
-			// body.angularVel -= turnVel;
 			body.applyAngularImpulse(-turnVel);
 		}
 		if (FlxG.keys.anyPressed([D, RIGHT])) {
-			// body.angularVel += turnVel;
 			body.applyAngularImpulse(turnVel);
 		}
 
