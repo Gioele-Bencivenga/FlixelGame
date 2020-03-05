@@ -11,8 +11,6 @@ class Bullet extends FlxNapeSprite {
 
 	public function new() {
 		super();
-
-		antialiasing = true;
 	}
 
 	public function create(_x:Float, _y:Float, _distance:Float, _rotation:Float, _damage = 1) {
@@ -23,8 +21,8 @@ class Bullet extends FlxNapeSprite {
 
 		damage = _damage;
 
-		loadGraphic(AssetPaths.bullet__png);
-		this.setGraphicSize(40);
+		loadGraphic(AssetPaths.laser__png);
+		this.setGraphicSize(50);
 
         createCircularBody(10);
         body.rotation = _rotation; // we rotate the bullet to the direction the player is facing
@@ -35,13 +33,6 @@ class Bullet extends FlxNapeSprite {
 		body.applyImpulse(direction.muleq(11)); // we multiply the vector so the bullet travels faster
 
 		return this;
-	}
-
-	override public function kill() {
-		// when the bullet is killed it (hopefully) does a little explosion
-		loadGraphic(AssetPaths.bulletExplosion__png);
-
-		super.kill();
 	}
 
 	public function GetDamage() {

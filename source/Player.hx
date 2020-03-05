@@ -1,3 +1,5 @@
+import flixel.effects.FlxFlicker;
+import flixel.util.FlxSpriteUtil;
 import flixel.util.FlxColor;
 import flixel.math.FlxPoint;
 import nape.phys.BodyType;
@@ -21,10 +23,12 @@ class Player extends FlxNapeSprite {
 	var rateOfFire:Float; // seconds between each shot
 
 	var canShoot:Bool; // pretty self explanatory flag
+	var hittable:Bool; // flag for when the player can be hit (player has invincibility frames when flickering)
 
 	var shootTimer:FlxTimer; // timer used to reset the canShoot flag
 
-	public var emitter:FlxEmitter; // particle emitter for thrusters
+	public var thrustEmitter:FlxEmitter; // particle emitter for thrusters
+	public var explosionEmitter:FlxEmitter; // practicle emitter for player's explosion
 
 	public static var CBODYPlayer:CbType = new CbType(); // callback bodytype needed for collision listening
 
@@ -32,18 +36,17 @@ class Player extends FlxNapeSprite {
 		super(FlxG.width / 2, FlxG.height / 2); // we create the obj at the centre of the screen
 
 		/// STATS STUFF
-		integrity = 50;
-		// turnVel = 1;
+		integrity = 10;
 		turnVel = 150;
 		thrust = 20;
 		maxVel = 500;
+		hittable = true;
 		// shooting
 		shotDamage = 4;
 		canShoot = true;
 		rateOfFire = 0.20; // 1 shot each rateOfFire seconds
 
 		/// GRAPHIC STUFF
-		antialiasing = true; // smooths rotations, affects perfomance
 		loadGraphic(AssetPaths.ship__png);
 		setGraphicSize(50);
 
@@ -57,43 +60,63 @@ class Player extends FlxNapeSprite {
 		/// TIMER STUFF
 		shootTimer = new FlxTimer();
 
-		/// PARTICLE STUFF
-		emitter = new FlxEmitter(x, y); // initializing the emitter
-
+		/// EMITTER STUFF
+		thrustEmitter = new FlxEmitter(x, y);
+		explosionEmitter = new FlxEmitter(x, y);
 		// emitters are just FlxGroups that help you recycle particles for repeated usage.
 		// As such, we need to add the particle into the emitters before we can use them.
 		for (i in 0...50) {
 			var p = new FlxParticle();
-			p.loadGraphic(AssetPaths.bulletExplosion__png);
+			p.loadGraphic(AssetPaths.thrustFire__png);
 			p.exists = false;
-			emitter.add(p);
+			thrustEmitter.add(p);
 		}
+		for (i in 0...100) {
+			var p = new FlxParticle();
+			p.loadGraphic(AssetPaths.thrustFire__png);
+			p.exists = false;
+			explosionEmitter.add(p);
+		}
+		SetEmitterProperties();
+	}
 
-		emitter.scale.set(0.8, 0.8, 1.2, 1.2, 2, 2, 3, 3);
-		emitter.lifespan.set(0.3, 0.5);
-		emitter.speed.set(1000);
-		emitter.alpha.set(1, 1, 0.2, 0.4);
-		emitter.color.set(FlxColor.ORANGE, FlxColor.YELLOW, FlxColor.GRAY, FlxColor.RED);
+	private function SetEmitterProperties() {
+		thrustEmitter.scale.set(1, 1, 2, 2, 3, 3, 4, 4);
+		thrustEmitter.lifespan.set(0.3, 0.5);
+		thrustEmitter.speed.set(1000);
+		thrustEmitter.alpha.set(1, 1, 0.2, 0.4);
+		thrustEmitter.color.set(FlxColor.ORANGE, FlxColor.YELLOW, FlxColor.GRAY, FlxColor.RED);
+
+		explosionEmitter.scale.set(2, 2, 3, 3, 4, 4, 5, 5);
+		explosionEmitter.lifespan.set(1.5, 3);
+		explosionEmitter.speed.set(500, 1500);
+		explosionEmitter.alpha.set(1, 1, 0.2, 0.4);
+		explosionEmitter.color.set(FlxColor.ORANGE, FlxColor.YELLOW, FlxColor.GRAY, FlxColor.RED);
 	}
 
 	override public function update(elapsed:Float) {
 		super.update(elapsed);
 
-		emitter.focusOn(this); // instead of emitter.setPosition((x + (width / 2)), (y + (height / 2)));
-		emitter.launchAngle.set((body.rotation * 57.5) + 195, (body.rotation * 57.5) + 165);
-		emitter.launchAngle.set(angle - 165, angle - 195);
+		UpdateEmitterPosAndAngle();
 		ProcessInput();
+
+		if (body.velocity.length > maxVel) {
+			body.velocity.length = maxVel;
+		}
+	}
+
+	private function UpdateEmitterPosAndAngle() {
+		thrustEmitter.focusOn(this); // instead of emitter.setPosition((x + (width / 2)), (y + (height / 2)));
+		thrustEmitter.launchAngle.set(angle - 165, angle - 195);
 	}
 
 	private function ProcessInput() {
 		/// MOVEMENT
 		if (FlxG.keys.anyPressed([W, UP])) { // if any key from the array is pressed
-			if (body.velocity.length <= maxVel) {
-				direction = Vec2.fromPolar(thrust, body.rotation);
-				body.applyImpulse(direction); // applying the impulse in the direction vector moves the body in the direction it's facing
+			direction = Vec2.fromPolar(thrust, body.rotation);
+			body.applyImpulse(direction); // applying the impulse in the direction vector moves the body in the direction it's facing
 
-				emitter.start(false, 0.01, 1);
-			}
+			thrustEmitter.start(false, 0.01, 1);
 		}
 		if (FlxG.keys.anyPressed([S, DOWN])) {
 			if (body.velocity.length <= maxVel) {
@@ -124,19 +147,20 @@ class Player extends FlxNapeSprite {
 		bullet2.create(x + (width / 2), y + (height / 2), 45, body.rotation - 0.01, shotDamage);
 
 		canShoot = false;
-		shootTimer.start(rateOfFire, ResetShotFlag, 1); // we start the timer so that after rateOfFire seconds we can shoot again
-	}
-
-	private function ResetShotFlag(_timer:FlxTimer) {
-		canShoot = true;
+		shootTimer.start(rateOfFire, function(_) canShoot = true, 1); // we start the timer so that after rateOfFire seconds we can shoot again
 	}
 
 	public function ChangeIntegrity(_amount:Int) {
-		if (integrity > 0) {
+		if (integrity > 0 && hittable) {
 			integrity += _amount;
+			hittable = false;
+
+			FlxSpriteUtil.flicker(this, 1, 0.05, true, true, function(_) hittable = true); // if the syntax scares you see inlineFunctions.md
 		}
 
 		if (integrity <= 0) {
+			explosionEmitter.focusOn(this);
+			explosionEmitter.start(true);
 			kill();
 		}
 	}

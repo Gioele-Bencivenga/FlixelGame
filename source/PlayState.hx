@@ -7,30 +7,26 @@ import flixel.math.FlxMath;
 import flixel.FlxCamera.FlxCameraFollowStyle;
 import flixel.addons.nape.FlxNapeSpace;
 import flixel.group.FlxGroup.FlxTypedGroup;
-import flixel.addons.display.FlxStarField.FlxStarField2D;
 import flixel.FlxG;
 import flixel.FlxState;
 
 class PlayState extends FlxState {
-	var starfield:FlxStarField2D;
-
 	var player:Player;
 
 	// group of asteroids
 	public static var asteroids:FlxTypedGroup<Asteroid>; // having collisions in groups improves performance
 
-	// timer used to spawn asteroids at an interval
-	var asteroidTimer:FlxTimer;
-	// timer used to kill asteroids too far away
-	var asteroidKillTimer:FlxTimer;
-
+	var asteroidTimer:FlxTimer; // timer used to spawn asteroids at an interval	
+	var asteroidKillTimer:FlxTimer; // timer used to kill asteroids too far away
 	var asteroidSpawnRate:Int; // how often we spawn a batch of asteroids
 
 	// group of bullets
 	public static var bullets:FlxTypedGroup<Bullet>;
 
-	// timer to kill far bullets
-	var bulletKillTimer:FlxTimer;
+	var bulletKillTimer:FlxTimer; // timer to kill far bullets
+
+	// group of mines
+	public static var mines:FlxTypedGroup<Mine>;
 
 	var text:FlxText;
 
@@ -41,14 +37,11 @@ class PlayState extends FlxState {
 		FlxNapeSpace.positionIterations = 5;
 
 		super.create();
-
-		/// STARFIELD
-		starfield = new FlxStarField2D(0, 0, 3000, 1500);
-		add(starfield);
 			
 		/// PLAYER
 		player = new Player();
-		add(player.emitter); // this first so the player gets drawn over the particles
+		add(player.thrustEmitter); // this first so the player gets drawn over the particles
+		add(player.explosionEmitter);
 		add(player);
 		
 		/// CAMERA
@@ -63,8 +56,12 @@ class PlayState extends FlxState {
 
 		/// BULLETS
 		var numOfBullets:Int = 128; // we'll have 128 bullets recycled over and over
-		bullets = new FlxTypedGroup(numOfBullets);
+		bullets = new FlxTypedGroup<Bullet>(numOfBullets);
 		add(bullets);
+
+		/// MINES
+		mines = new FlxTypedGroup<Mine>();
+		add(mines);
 
 		/// COLLISIONS
 		// asteroid to asteroid collision listener
@@ -161,14 +158,18 @@ class PlayState extends FlxState {
 		// we don't want to overwhelm the player too much
 		if (asteroids.countLiving() > 140) {
 			asteroidSpawnNumber = 0;
-		} else if (asteroids.countLiving() > 110) {
+		} else if (asteroids.countLiving() > 90) {
 			asteroidSpawnNumber = 1;
-		} else if (asteroids.countLiving() > 70) {
-			asteroidSpawnNumber = 2;
 		} else if (asteroids.countLiving() > 60) {
+			asteroidSpawnNumber = 2;
+		} else if (asteroids.countLiving() > 40) {
 			asteroidSpawnNumber = 3;
 		} else {
-			asteroidSpawnNumber = 6;
+			asteroidSpawnNumber = 4;
+		}
+
+		if(mines.countLiving() < 2){
+			SpawnMine(Std.int(player.x - 300), Std.int(player.y - 300));
 		}
 
 		var baseSpeed = 100;
@@ -227,6 +228,11 @@ class PlayState extends FlxState {
 		asteroid.create(_x, _y, _size, _xVel, _yVel);
 	}
 
+	private function SpawnMine(_x:Int = 0, _y:Int = 0) {
+		var mine = mines.recycle(Mine.new);
+		mine.create(_x, _y, player);
+	}
+
 	override public function update(elapsed:Float):Void {
 		super.update(elapsed);
 
@@ -245,8 +251,6 @@ class PlayState extends FlxState {
 
 		text.text = Std.string(asteroids.countLiving());
 		text.setPosition(player.x, player.y);
-
-		starfield.setPosition(player.x - (FlxG.width / 2), player.y - (FlxG.height / 2));
 	}
 
 	private function setZoom(_zoom:Float) {

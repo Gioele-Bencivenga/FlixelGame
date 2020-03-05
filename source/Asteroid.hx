@@ -1,3 +1,4 @@
+import flixel.util.FlxSpriteUtil;
 import nape.callbacks.*;
 import flixel.FlxG;
 import flixel.addons.nape.FlxNapeSprite;
@@ -11,8 +12,6 @@ class Asteroid extends FlxNapeSprite {
 
 	public function new() {
 		super();
-
-		antialiasing = true; // smooth rotations, bad performance
 	}
 
 	public function create(_x:Int = 0, _y:Int = 0, _size:Int = 0, _xVel = 0, _yVel = 0) {
@@ -38,37 +37,41 @@ class Asteroid extends FlxNapeSprite {
 		super.update(elapsed);
 	}
 
+	override public function kill() {
+		super.kill();
+	}
+
 	private function AssignIntegrity() {
 		if (size == 0) {
-			integrity = 5;
+			integrity = 6;
 		} else if (size == 1) {
-			integrity = 15;
+			integrity = 16;
 		} else if (size == 2) {
-			integrity = 25;
+			integrity = 26;
 		} else if (size == 3) {
-			integrity = 35;
+			integrity = 36;
 		} else {
 			trace("Size is different than expected values?!?!?");
 		}
 	}
 
 	private function AssignDamage() {
-		damage = size + 1;
+		damage = size;
 	}
 
 	private function AssignBody() {
 		if (size == 0) {
 			createCircularBody(10);
-			setBodyMaterial(1, 0.2, 0.4, 2, 0.001);
+			setBodyMaterial(2, 0.2, 0.4, 2, 0.001);
 		} else if (size == 1) {
 			createCircularBody(23);
-			setBodyMaterial(1, 0.2, 0.4, 3, 0.001);
+			setBodyMaterial(1.5, 0.2, 0.4, 3, 0.001);
 		} else if (size == 2) {
 			createCircularBody(50);
 			setBodyMaterial(1, 0.2, 0.4, 5, 0.001);
 		} else if (size == 3) {
 			createCircularBody(90);
-			setBodyMaterial(1, 0.2, 0.4, 7, 0.001);
+			setBodyMaterial(0.5, 0.2, 0.4, 8, 0.001);
 		} else {
 			trace("Houston, we have a problem with size in AssignBody()");
 		}
