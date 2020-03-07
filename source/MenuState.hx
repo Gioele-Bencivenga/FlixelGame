@@ -21,7 +21,22 @@ class MenuState extends FlxState {
 
 	override public function update(elapsed:Float):Void {
 		if (FlxG.keys.justReleased.SPACE) {
-			FlxG.switchState(new PlayState());
+			FlxG.cameras.fade(FlxColor.BLACK, 1, false, function() FlxG.switchState(new PlayState()), true);
 		}
+		if (FlxG.keys.justReleased.ESCAPE) {
+			FlxG.cameras.fade(FlxColor.BLACK, 1, false, function() QuitGame(), true);
+		}
+	}
+
+	private function QuitGame() { // thanks to dean for this function!
+		#if html5
+		FlxG.openURL("https://gioelebencivenga.casa", "_self");
+		#else
+		#if cpp
+		Sys.exit(0);
+		#else
+		openfl.system.System.exit(0);
+		#end
+		#end
 	}
 }

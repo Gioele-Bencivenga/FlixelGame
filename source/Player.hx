@@ -36,7 +36,7 @@ class Player extends FlxNapeSprite {
 		super(FlxG.width / 2, FlxG.height / 2); // we create the obj at the centre of the screen
 
 		/// STATS STUFF
-		integrity = 10;
+		integrity = 50;
 		turnVel = 150;
 		thrust = 20;
 		maxVel = 500;
@@ -44,7 +44,7 @@ class Player extends FlxNapeSprite {
 		// shooting
 		shotDamage = 4;
 		canShoot = true;
-		rateOfFire = 0.20; // 1 shot each rateOfFire seconds
+		rateOfFire = 0.15; // 1 shot each rateOfFire seconds
 
 		/// GRAPHIC STUFF
 		loadGraphic(AssetPaths.ship__png);
@@ -68,13 +68,11 @@ class Player extends FlxNapeSprite {
 		for (i in 0...50) {
 			var p = new FlxParticle();
 			p.loadGraphic(AssetPaths.thrustFire__png);
-			p.exists = false;
 			thrustEmitter.add(p);
 		}
 		for (i in 0...100) {
 			var p = new FlxParticle();
 			p.loadGraphic(AssetPaths.thrustFire__png);
-			p.exists = false;
 			explosionEmitter.add(p);
 		}
 		SetEmitterProperties();
@@ -159,10 +157,15 @@ class Player extends FlxNapeSprite {
 		}
 
 		if (integrity <= 0) {
-			explosionEmitter.focusOn(this);
-			explosionEmitter.start(true);
 			kill();
 		}
+	}
+	
+	override public function kill() {
+		explosionEmitter.focusOn(this);
+		explosionEmitter.start(true);
+		
+		super.kill();
 	}
 
 	public function GetIntegrity():Int {

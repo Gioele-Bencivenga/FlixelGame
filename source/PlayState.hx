@@ -1,5 +1,9 @@
 package;
 
+import flixel.FlxBasic;
+import flixel.FlxObject;
+import flixel.effects.particles.FlxParticle;
+import flixel.effects.particles.FlxEmitter;
 import flixel.text.FlxText;
 import flixel.util.*;
 import nape.callbacks.*;
@@ -14,9 +18,9 @@ class PlayState extends FlxState {
 	var player:Player;
 
 	// group of asteroids
-	public static var asteroids:FlxTypedGroup<Asteroid>; // having collisions in groups improves performance
+	public var asteroids:FlxTypedGroup<Asteroid>; // having collisions in groups improves performance
 
-	var asteroidTimer:FlxTimer; // timer used to spawn asteroids at an interval	
+	var asteroidTimer:FlxTimer; // timer used to spawn asteroids at an interval
 	var asteroidKillTimer:FlxTimer; // timer used to kill asteroids too far away
 	var asteroidSpawnRate:Int; // how often we spawn a batch of asteroids
 
@@ -26,7 +30,9 @@ class PlayState extends FlxState {
 	var bulletKillTimer:FlxTimer; // timer to kill far bullets
 
 	// group of mines
-	public static var mines:FlxTypedGroup<Mine>;
+	public var mines:FlxTypedGroup<Mine>;
+
+	var mineExplosionEmitter:FlxEmitter;
 
 	var text:FlxText;
 
@@ -37,13 +43,23 @@ class PlayState extends FlxState {
 		FlxNapeSpace.positionIterations = 5;
 
 		super.create();
-			
+
+		/// EMITTERS
+		mineExplosionEmitter = new FlxEmitter();
+		mineExplosionEmitter.loadParticles(AssetPaths.explosion__png, 50);
+		mineExplosionEmitter.scale.set(2, 2, 3, 3, 3, 3, 4, 4);
+		mineExplosionEmitter.lifespan.set(0.2, 0.5);
+		mineExplosionEmitter.speed.set(200, 500);
+		mineExplosionEmitter.alpha.set(1, 1, 0.2, 0.4);
+		mineExplosionEmitter.color.set(FlxColor.ORANGE, FlxColor.YELLOW, FlxColor.GRAY, FlxColor.RED);
+		add(mineExplosionEmitter);
+
 		/// PLAYER
 		player = new Player();
-		add(player.thrustEmitter); // this first so the player gets drawn over the particles
+		add(player.thrustEmitter); // emitters first so the player gets drawn over the particles
 		add(player.explosionEmitter);
 		add(player);
-		
+
 		/// CAMERA
 		FlxG.camera.follow(player, FlxCameraFollowStyle.LOCKON);
 		camera.followLead.x += 5;
@@ -58,6 +74,10 @@ class PlayState extends FlxState {
 		var numOfBullets:Int = 128; // we'll have 128 bullets recycled over and over
 		bullets = new FlxTypedGroup<Bullet>(numOfBullets);
 		add(bullets);
+
+		for (bullet in bullets) {
+			add(bullet.hitEmitter);
+		}
 
 		/// MINES
 		mines = new FlxTypedGroup<Mine>();
@@ -79,6 +99,18 @@ class PlayState extends FlxState {
 			CollBulletToAsteroid);
 		FlxNapeSpace.space.listeners.add(colListBullToAster);
 
+		// mine to asteroid collision listener
+		var colListMineToAster = new InteractionListener(CbEvent.BEGIN, InteractionType.COLLISION, Mine.CBODYMine, Asteroid.CBODYAsteroid, CollMineToAsteroid);
+		FlxNapeSpace.space.listeners.add(colListMineToAster);
+
+		// bullet to mine collision listener
+		var colListBullToMine = new InteractionListener(CbEvent.BEGIN, InteractionType.COLLISION, Bullet.CBODYBullet, Mine.CBODYMine, CollBulletToMine);
+		FlxNapeSpace.space.listeners.add(colListBullToMine);
+
+		// player to mine collision listener
+		var colListPlayerToMine = new InteractionListener(CbEvent.BEGIN, InteractionType.COLLISION, Player.CBODYPlayer, Mine.CBODYMine, CollPlayerToMine);
+		FlxNapeSpace.space.listeners.add(colListPlayerToMine);
+
 		/// TIMERS
 		asteroidSpawnRate = 1;
 		// asteroid spawn
@@ -99,7 +131,9 @@ class PlayState extends FlxState {
 	private function CollAsteroidToPlayer(i:InteractionCallback) {
 		var asteroid:Asteroid = i.int1.userData.data;
 
-		player.ChangeIntegrity(-asteroid.GetDamage());
+		if (asteroid.GetDamage() > 0) {
+			player.ChangeIntegrity(-asteroid.GetDamage());
+		}
 	}
 
 	private function CollAsteroidToAsteroid(i:InteractionCallback) {
@@ -127,6 +161,28 @@ class PlayState extends FlxState {
 		if (asteroid.GetIntegrity() <= 0) {
 			FragmentAsteroid(asteroid);
 		}
+	}
+
+	private function CollMineToAsteroid(i:InteractionCallback) {
+		var mine:Mine = i.int1.userData.data;
+		var asteroid:Asteroid = i.int2.userData.data;
+
+		mine.ChangeIntegrity(-asteroid.GetDamage());
+	}
+
+	private function CollBulletToMine(i:InteractionCallback) {
+		var bullet:Bullet = i.int1.userData.data;
+		var mine:Mine = i.int2.userData.data;
+
+		mine.ChangeIntegrity(-bullet.GetDamage());
+		bullet.kill();
+	}
+
+	private function CollPlayerToMine(i:InteractionCallback) {
+		var mine:Mine = i.int2.userData.data;
+
+		mine.Explode();
+		//player.ChangeIntegrity(-mine.GetDamage());
 	}
 
 	// this function creates between 3 and 6 asteroids (chunks) that are smaller than the one passed as an argument (_asteroid)
@@ -168,7 +224,7 @@ class PlayState extends FlxState {
 			asteroidSpawnNumber = 4;
 		}
 
-		if(mines.countLiving() < 2){
+		if (mines.countLiving() < 2) {
 			SpawnMine(Std.int(player.x - 300), Std.int(player.y - 300));
 		}
 
@@ -199,7 +255,13 @@ class PlayState extends FlxState {
 				-(baseSpeed + speedVariation));
 		}
 	}
-
+	
+	// this function exists just for the convenience of not rewriting asteroids.recycle every time
+	private function SpawnAsteroid(_x:Int = 0, _y:Int = 0, _size = 0, _xVel = 0, _yVel = 0) {
+		var asteroid = asteroids.recycle(Asteroid.new);
+		asteroid.create(_x, _y, _size, _xVel, _yVel);
+	}
+	
 	// function used by the killTimer for removing asteroid that are too far away
 	private function RemoveAsteroids(_timer:FlxTimer):Void {
 		var maxDistance = 3000;
@@ -222,25 +284,18 @@ class PlayState extends FlxState {
 		}
 	}
 
-	// this function exists just for the convenience of not rewriting asteroids.recycle every time
-	private function SpawnAsteroid(_x:Int = 0, _y:Int = 0, _size = 0, _xVel = 0, _yVel = 0) {
-		var asteroid = asteroids.recycle(Asteroid.new);
-		asteroid.create(_x, _y, _size, _xVel, _yVel);
-	}
 
 	private function SpawnMine(_x:Int = 0, _y:Int = 0) {
 		var mine = mines.recycle(Mine.new);
-		mine.create(_x, _y, player);
+		mine.create(_x, _y, mineExplosionEmitter, player.body.position);
 	}
 
 	override public function update(elapsed:Float):Void {
-		super.update(elapsed);
-
 		// pressing ESC brings back to the menu
 		if (FlxG.keys.pressed.ESCAPE) {
 			FlxG.switchState(new MenuState());
 		}
-
+		
 		// pressing period/comma zooms in/out
 		if (FlxG.keys.justPressed.PERIOD) {
 			setZoom(FlxG.camera.zoom += 0.3);
@@ -248,9 +303,23 @@ class PlayState extends FlxState {
 		if (FlxG.keys.justPressed.COMMA) {
 			setZoom(FlxG.camera.zoom -= 0.3);
 		}
+		
+		FlxG.overlap(mineExplosionEmitter, asteroids, ExplosionToAsteroid);
+		FlxG.overlap(mineExplosionEmitter, player, ExplosionToPlayer);
+		
+		super.update(elapsed);
+	}
 
-		text.text = Std.string(asteroids.countLiving());
-		text.setPosition(player.x, player.y);
+	public function ExplosionToAsteroid(_mine:Mine, _asteroid:Asteroid) {
+		//_asteroid.ChangeIntegrity(-_mine.GetDamage());
+
+		trace("dio bastardo");
+	}
+
+	public function ExplosionToPlayer(_mine:Mine, _player:Player) {
+		var mine = _mine;
+		//player.ChangeIntegrity(-mine.GetDamage());
+		trace("player damaged by explosion");
 	}
 
 	private function setZoom(_zoom:Float) {

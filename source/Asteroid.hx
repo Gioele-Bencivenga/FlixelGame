@@ -43,7 +43,7 @@ class Asteroid extends FlxNapeSprite {
 
 	private function AssignIntegrity() {
 		if (size == 0) {
-			integrity = 6;
+			integrity = 8;
 		} else if (size == 1) {
 			integrity = 16;
 		} else if (size == 2) {

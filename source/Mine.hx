@@ -1,3 +1,10 @@
+import flixel.FlxG;
+import flixel.FlxObject;
+import haxe.display.Display.DeterminePackageResult;
+import flixel.util.FlxColor;
+import flixel.effects.particles.FlxParticle;
+import flixel.effects.particles.FlxEmitter;
+import flixel.util.FlxTimer;
 import nape.geom.Vec2;
 import nape.callbacks.CbType;
 import flixel.addons.nape.FlxNapeSprite;
@@ -12,33 +19,37 @@ class Mine extends FlxNapeSprite {
 
 	var direction:Vec2;
 
-	var player:Player;
-
 	var playerPos:Vec2;
+
+	var explosionEmitter:FlxEmitter;
 
 	public function new() {
 		super();
 	}
 
-	public function create(_x:Int = 0, _y:Int = 0, _player:Player) {
+	public function create(_x:Int = 0, _y:Int = 0, _explosionEmitter:FlxEmitter, _playerPos:Vec2) {
 		/// POSITION
 		x = _x;
 		y = _y;
 
 		/// STATS
 		damage = 8;
-		integrity = 50;
+		integrity = 1;
 		maxVel = 550;
 
 		/// REFERENCES
-		player = _player;
+		playerPos = _playerPos;
 
 		/// GRAPHIC
 		loadGraphic(AssetPaths.mine__png);
-		setGraphicSize(35, 35);
+		setGraphicSize(35, 35);	
+		
+		/// EMITTER
+		explosionEmitter = _explosionEmitter;
+		explosionEmitter.allowCollisions = FlxObject.ANY;
 
 		/// BODY
-		createCircularBody(15);
+		createCircularBody(17);
 		setBodyMaterial(1, 0.2, 0.4, 2, 0.001);
 		body.cbTypes.add(CBODYMine);
 		body.userData.data = this;
@@ -51,14 +62,35 @@ class Mine extends FlxNapeSprite {
 	}
 
 	private function MoveTowardsPlayer() {
-		direction = new Vec2(player.x, player.y);
+		direction = new Vec2(playerPos.x, playerPos.y);
 		direction.subeq(body.position);
-		direction.length = 10;
+		direction.length = 15;
 
 		body.applyImpulse(direction);
 
-		if(body.velocity.length > maxVel){
+		if (body.velocity.length > maxVel) {
 			body.velocity.length = maxVel;
 		}
+	}
+
+	public function ChangeIntegrity(_amount:Int) {
+		if (integrity > 0) {
+			integrity += _amount;
+		}
+
+		if (integrity <= 0) {
+			Explode();
+		}
+	}
+
+	public function Explode() {
+		explosionEmitter.focusOn(this);
+		explosionEmitter.start(true);
+
+		kill();
+	}
+
+	public function GetDamage() {
+		return damage;
 	}
 }
