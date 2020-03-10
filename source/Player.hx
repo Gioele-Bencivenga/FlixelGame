@@ -10,7 +10,7 @@ import flixel.addons.nape.FlxNapeSprite;
 
 class Player extends FlxNapeSprite {
 	var thrust:Float; // aka speed
-	var integrity:Int; // aka health
+	var integrity:Int; // aka health, it's a property so it can be read from wherever but only set from inside this class
 	var turnVel:Float; // spinning speed
 	var maxVel:Float; // maximum velocity
 
@@ -165,9 +165,5 @@ class Player extends FlxNapeSprite {
 		explosionEmitter.start(true);
 
 		super.kill();
-	}
-
-	public function GetIntegrity():Int {
-		return integrity;
 	}
 }

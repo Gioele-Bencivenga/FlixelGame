@@ -4,9 +4,10 @@ import flixel.FlxG;
 import flixel.addons.nape.FlxNapeSprite;
 
 class Asteroid extends FlxNapeSprite {
-	var size:Int; // asteroid sizes are small(0), medium(1), large(2), huge(3)
-	var integrity:Int; // health
-	var damage:Int;
+	// the following are properties, their get access is default and their set access is null, meaning they can be read like a variable but only set from withing this class
+	public var size(default, null):Int; // asteroid sizes are small(0), medium(1), large(2), huge(3)
+	public var integrity(default, null):Int; // health
+	public var damage(default, null):Int;
 
 	public static var CBODYAsteroid:CbType = new CbType(); // callback bodytype needed for collision listening
 
@@ -115,17 +116,5 @@ class Asteroid extends FlxNapeSprite {
 		if (integrity <= 0) {
 			kill();
 		}
-	}
-
-	public function GetIntegrity() {
-		return integrity;
-	}
-
-	public function GetSize() {
-		return size;
-	}
-
-	public function GetDamage() {
-		return damage;
 	}
 }

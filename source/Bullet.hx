@@ -6,7 +6,7 @@ import nape.callbacks.CbType;
 import flixel.addons.nape.FlxNapeSprite;
 
 class Bullet extends FlxNapeSprite {
-	var damage:Int;
+	public var damage(default, null):Int;
 
 	var direction:Vec2;
 
@@ -40,10 +40,6 @@ class Bullet extends FlxNapeSprite {
 		body.cbTypes.add(CBODYBullet);
 		body.userData.data = this;
 		body.applyImpulse(direction.muleq(11)); // we multiply the vector so the bullet travels faster
-	}
-
-	public function GetDamage() {
-		return damage;
 	}
 
 	override public function kill() {

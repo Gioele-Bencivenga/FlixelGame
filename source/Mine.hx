@@ -10,8 +10,8 @@ import nape.callbacks.CbType;
 import flixel.addons.nape.FlxNapeSprite;
 
 class Mine extends FlxNapeSprite {
-	var integrity:Int;
-	var damage:Int;
+	public var integrity(default, null):Int;
+	public var damage(default, null):Int;
 
 	var maxVel:Int;
 
@@ -87,13 +87,5 @@ class Mine extends FlxNapeSprite {
 		explosionEmitter.start();
 
 		kill();
-	}
-
-	public function GetDamage() {
-		return damage;
-	}
-
-	public function GetIntegrity() {
-		return integrity;
 	}
 }

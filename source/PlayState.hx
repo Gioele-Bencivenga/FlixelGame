@@ -136,20 +136,20 @@ class PlayState extends FlxState {
 	private function CollAsteroidToPlayer(i:InteractionCallback) {
 		var asteroid:Asteroid = i.int1.userData.data;
 
-		player.TakeDamage(asteroid.GetDamage());
+		player.TakeDamage(asteroid.damage);
 	}
 
 	private function CollAsteroidToAsteroid(i:InteractionCallback) {
 		var asteroid1:Asteroid = i.int1.userData.data;
 		var asteroid2:Asteroid = i.int2.userData.data;
 
-		asteroid1.TakeDamage(asteroid2.GetDamage());
-		asteroid2.TakeDamage(asteroid1.GetDamage());
+		asteroid1.TakeDamage(asteroid2.damage);
+		asteroid2.TakeDamage(asteroid1.damage);
 
-		if (asteroid1.GetIntegrity() <= 0)
+		if (asteroid1.integrity <= 0)
 			FragmentAsteroid(asteroid1);
 
-		if (asteroid2.GetIntegrity() <= 0)
+		if (asteroid2.integrity <= 0)
 			FragmentAsteroid(asteroid2);
 	}
 
@@ -157,10 +157,10 @@ class PlayState extends FlxState {
 		var bullet:Bullet = i.int1.userData.data;
 		var asteroid:Asteroid = i.int2.userData.data;
 
-		asteroid.TakeDamage(bullet.GetDamage());
+		asteroid.TakeDamage(bullet.damage);
 		bullet.kill();
 
-		if (asteroid.GetIntegrity() <= 0)
+		if (asteroid.integrity <= 0)
 			FragmentAsteroid(asteroid);
 	}
 
@@ -168,15 +168,15 @@ class PlayState extends FlxState {
 		var mine:Mine = i.int1.userData.data;
 		var asteroid:Asteroid = i.int2.userData.data;
 
-		mine.TakeDamage(asteroid.GetDamage());
+		mine.TakeDamage(asteroid.damage);
 		
-		if (mine.GetIntegrity() <= 0) { // if the mine explodes we apply the damage to the asteroid
-			asteroid.TakeDamage(mine.GetDamage());
+		if (mine.integrity <= 0) { // if the mine explodes we apply the damage to the asteroid
+			asteroid.TakeDamage(mine.damage);
 		}else{ // else we just do a little damage
 			asteroid.TakeDamage(1);
 		}
 
-		if (asteroid.GetIntegrity() <= 0)
+		if (asteroid.integrity <= 0)
 			FragmentAsteroid(asteroid);
 	}
 
@@ -184,7 +184,7 @@ class PlayState extends FlxState {
 		var bullet:Bullet = i.int1.userData.data;
 		var mine:Mine = i.int2.userData.data;
 
-		mine.TakeDamage(bullet.GetDamage());
+		mine.TakeDamage(bullet.damage);
 		bullet.kill();
 	}
 
@@ -192,14 +192,14 @@ class PlayState extends FlxState {
 		var mine:Mine = i.int2.userData.data;
 
 		mine.Explode();
-		player.TakeDamage(mine.GetDamage());
+		player.TakeDamage(mine.damage);
 	}
 
 	// this function creates between 3 and 6 asteroids (chunks) that are smaller than the one passed as an argument (_asteroid)
 	// the chunks are created at the center of the _asteroid, with a random offset to help them not get stuck overlapping
 	// initially it was calling SpawnAsteroid() but that was changed for reasons I have now forgot
 	private function FragmentAsteroid(_asteroid:Asteroid) {
-		if (_asteroid.GetSize() > 0) { // if the asteroid is big enough to fragment
+		if (_asteroid.size > 0) { // if the asteroid is big enough to fragment
 			var numOfChunks = FlxG.random.int(3, 6);
 			var maxOff = 40; // maximum offset variable
 
@@ -211,7 +211,7 @@ class PlayState extends FlxState {
 				newAsteroid.create(Std.int((_asteroid.x + _asteroid.width / 2))
 					+ offsetX, Std.int((_asteroid.y + _asteroid.height / 2))
 					+ offsetY,
-					_asteroid.GetSize()
+					_asteroid.size
 					- 1, FlxG.random.int(-150, 150), FlxG.random.int(-150, 150));
 			}
 		}
