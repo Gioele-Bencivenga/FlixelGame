@@ -107,9 +107,9 @@ class Asteroid extends FlxNapeSprite {
 		}
 	}
 
-	public function ChangeIntegrity(_amount:Int) {
+	public function TakeDamage(_amount:Int) {
 		if (integrity > 0) {
-			integrity += _amount;
+			integrity -= _amount;
 		}
 
 		if (integrity <= 0) {

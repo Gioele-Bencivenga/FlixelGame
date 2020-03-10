@@ -33,8 +33,8 @@ class Mine extends FlxNapeSprite {
 		y = _y;
 
 		/// STATS
-		damage = 8;
-		integrity = 1;
+		damage = 10;
+		integrity = 25;
 		maxVel = 550;
 
 		/// REFERENCES
@@ -46,7 +46,6 @@ class Mine extends FlxNapeSprite {
 		
 		/// EMITTER
 		explosionEmitter = _explosionEmitter;
-		explosionEmitter.allowCollisions = FlxObject.ANY;
 
 		/// BODY
 		createCircularBody(17);
@@ -73,9 +72,9 @@ class Mine extends FlxNapeSprite {
 		}
 	}
 
-	public function ChangeIntegrity(_amount:Int) {
+	public function TakeDamage(_amount:Int) {
 		if (integrity > 0) {
-			integrity += _amount;
+			integrity -= _amount;
 		}
 
 		if (integrity <= 0) {
@@ -85,12 +84,16 @@ class Mine extends FlxNapeSprite {
 
 	public function Explode() {
 		explosionEmitter.focusOn(this);
-		explosionEmitter.start(true);
+		explosionEmitter.start();
 
 		kill();
 	}
 
 	public function GetDamage() {
 		return damage;
+	}
+
+	public function GetIntegrity() {
+		return integrity;
 	}
 }

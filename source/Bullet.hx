@@ -32,20 +32,10 @@ class Bullet extends FlxNapeSprite {
 		setGraphicSize(50);
 
 		/// EMITTER
-		hitEmitter = new FlxEmitter(x, y);
-		for (i in 0...20) {
-			var p = new FlxParticle();
-			p.loadGraphic(AssetPaths.explosion__png);
-			hitEmitter.add(p);
-		}
-		hitEmitter.scale.set(2, 2, 3, 3, 4, 4, 5, 5);
-		hitEmitter.lifespan.set(1.5, 3);
-		hitEmitter.speed.set(500, 1500);
-		hitEmitter.alpha.set(1, 1, 0.2, 0.4);
-		hitEmitter.color.set(FlxColor.ORANGE, FlxColor.YELLOW, FlxColor.GRAY, FlxColor.RED);
+		hitEmitter = PlayState.bulletHitEmitter;
 
 		/// BODY
-		createRectangularBody(40, 10);
+		createRectangularBody(40, 15);
 		body.rotation = _rotation; // we rotate the bullet to the direction the player is facing
 		body.cbTypes.add(CBODYBullet);
 		body.userData.data = this;
@@ -58,7 +48,7 @@ class Bullet extends FlxNapeSprite {
 
 	override public function kill() {
 		hitEmitter.focusOn(this);
-		hitEmitter.start(); // why is this not emitting?
+		hitEmitter.start();
 
 		super.kill();
 	}

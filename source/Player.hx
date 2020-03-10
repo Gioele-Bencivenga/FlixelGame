@@ -1,8 +1,5 @@
-import flixel.effects.FlxFlicker;
 import flixel.util.FlxSpriteUtil;
 import flixel.util.FlxColor;
-import flixel.math.FlxPoint;
-import nape.phys.BodyType;
 import flixel.util.FlxTimer;
 import nape.callbacks.*;
 import flixel.effects.particles.FlxParticle;
@@ -36,15 +33,15 @@ class Player extends FlxNapeSprite {
 		super(FlxG.width / 2, FlxG.height / 2); // we create the obj at the centre of the screen
 
 		/// STATS STUFF
-		integrity = 50;
+		integrity = 30;
 		turnVel = 150;
 		thrust = 20;
 		maxVel = 500;
 		hittable = true;
 		// shooting
-		shotDamage = 4;
+		shotDamage = 5;
 		canShoot = true;
-		rateOfFire = 0.15; // 1 shot each rateOfFire seconds
+		rateOfFire = 0.20; // 1 shot each rateOfFire seconds
 
 		/// GRAPHIC STUFF
 		loadGraphic(AssetPaths.ship__png);
@@ -148,23 +145,25 @@ class Player extends FlxNapeSprite {
 		shootTimer.start(rateOfFire, function(_) canShoot = true, 1); // we start the timer so that after rateOfFire seconds we can shoot again
 	}
 
-	public function ChangeIntegrity(_amount:Int) {
-		if (integrity > 0 && hittable) {
-			integrity += _amount;
-			hittable = false;
+	public function TakeDamage(_amount:Int) {
+		if (_amount > 0) {
+			if (integrity > 0 && hittable) {
+				integrity -= _amount;
+				hittable = false;
 
-			FlxSpriteUtil.flicker(this, 1, 0.05, true, true, function(_) hittable = true); // if the syntax scares you see inlineFunctions.md
-		}
+				FlxSpriteUtil.flicker(this, 1, 0.05, true, true, function(_) hittable = true); // if the syntax scares you see inlineFunctions.md
+			}
 
-		if (integrity <= 0) {
-			kill();
+			if (integrity <= 0) {
+				kill();
+			}
 		}
 	}
-	
+
 	override public function kill() {
 		explosionEmitter.focusOn(this);
 		explosionEmitter.start(true);
-		
+
 		super.kill();
 	}
 
