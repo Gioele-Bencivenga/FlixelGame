@@ -29,6 +29,8 @@ class Player extends FlxNapeSprite {
 
 	public static var CBODYPlayer:CbType = new CbType(); // callback bodytype needed for collision listening
 
+	public var score:Int;
+
 	public function new() {
 		super(FlxG.width / 2, FlxG.height / 2); // we create the obj at the centre of the screen
 
@@ -38,6 +40,7 @@ class Player extends FlxNapeSprite {
 		thrust = 20;
 		maxVel = 500;
 		hittable = true;
+		score = 0;
 		// shooting
 		shotDamage = 5;
 		canShoot = true;

@@ -1,13 +1,22 @@
-import flixel.util.FlxSpriteUtil;
 import nape.callbacks.*;
 import flixel.FlxG;
 import flixel.addons.nape.FlxNapeSprite;
 
+// the "to Int" syntax allows implicit casting of the enum
+enum abstract AsteroidSize(Int) to Int {
+	var Small = 0;
+	var Medium = 1;
+	var Large = 2;
+	var Huge = 3;
+
+	@:op(A - B) function subtract(rhs:Int):AsteroidSize;
+}
+
 class Asteroid extends FlxNapeSprite {
 	// the following are properties, their get access is default and their set access is null, meaning they can be read like a variable but only set from withing this class
-	public var size(default, null):Int; // asteroid sizes are small(0), medium(1), large(2), huge(3)
 	public var integrity(default, null):Int; // health
 	public var damage(default, null):Int;
+	public var size(default, null):AsteroidSize;
 
 	public static var CBODYAsteroid:CbType = new CbType(); // callback bodytype needed for collision listening
 
@@ -15,13 +24,13 @@ class Asteroid extends FlxNapeSprite {
 		super();
 	}
 
-	public function create(_x:Int = 0, _y:Int = 0, _size:Int = 0, _xVel = 0, _yVel = 0) {
+	public function create(_x:Int = 0, _y:Int = 0, _size:AsteroidSize = Small, _xVel = 0, _yVel = 0) {
 		x = _x;
 		y = _y;
 
-		// sometimes size will reach different values (usually when colliding with asteroids of size 1)
-		if (_size != 0 && _size != 1 && _size != 2 && _size != 3) {
-			_size = 0;
+		// sometimes size manages to be an unexpected value, so we prevent a nasty exception here, do it in operator overload instead
+		if (_size != Small && _size != Medium && _size != Large && _size != Huge) {
+			_size = Small;
 		}
 		size = _size;
 
@@ -43,13 +52,13 @@ class Asteroid extends FlxNapeSprite {
 	}
 
 	private function AssignIntegrity() {
-		if (size == 0) {
+		if (size == Small) {
 			integrity = 8;
-		} else if (size == 1) {
+		} else if (size == Medium) {
 			integrity = 16;
-		} else if (size == 2) {
+		} else if (size == Large) {
 			integrity = 26;
-		} else if (size == 3) {
+		} else if (size == Huge) {
 			integrity = 36;
 		} else {
 			trace("Size is different than expected values?!?!?");
@@ -61,16 +70,16 @@ class Asteroid extends FlxNapeSprite {
 	}
 
 	private function AssignBody() {
-		if (size == 0) {
+		if (size == Small) {
 			createCircularBody(10);
 			setBodyMaterial(2, 0.2, 0.4, 2, 0.001);
-		} else if (size == 1) {
+		} else if (size == Medium) {
 			createCircularBody(23);
 			setBodyMaterial(1.5, 0.2, 0.4, 3, 0.001);
-		} else if (size == 2) {
+		} else if (size == Large) {
 			createCircularBody(50);
 			setBodyMaterial(1, 0.2, 0.4, 5, 0.001);
-		} else if (size == 3) {
+		} else if (size == Huge) {
 			createCircularBody(90);
 			setBodyMaterial(0.5, 0.2, 0.4, 8, 0.001);
 		} else {
@@ -82,22 +91,22 @@ class Asteroid extends FlxNapeSprite {
 
 	private function AssignSprite() {
 		var minerals = FlxG.random.bool(); // 50% chance of having minerals
-		if (size == 0) {
+		if (size == Small) {
 			loadGraphic(AssetPaths.Asteroid_Small__png);
-		} else if (size == 1) {
+		} else if (size == Medium) {
 			// 50% chance of being the mineral version
 			if (minerals) {
 				loadGraphic(AssetPaths.Asteroid_Medium__png);
 			} else {
 				loadGraphic(AssetPaths.Asteroid_Medium_Minerals__png);
 			}
-		} else if (size == 2) {
+		} else if (size == Large) {
 			if (minerals) {
 				loadGraphic(AssetPaths.Asteroid_Large__png);
 			} else {
 				loadGraphic(AssetPaths.Asteroid_Large_Minerals__png);
 			}
-		} else if (size == 3) {
+		} else if (size == Huge) {
 			if (minerals) {
 				loadGraphic(AssetPaths.Asteroid_Huge__png);
 			} else {

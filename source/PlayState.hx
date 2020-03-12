@@ -1,7 +1,6 @@
 package;
 
-import flixel.FlxBasic;
-import flixel.FlxObject;
+import Asteroid.AsteroidSize;
 import flixel.effects.particles.FlxParticle;
 import flixel.effects.particles.FlxEmitter;
 import flixel.text.FlxText;
@@ -169,10 +168,10 @@ class PlayState extends FlxState {
 		var asteroid:Asteroid = i.int2.userData.data;
 
 		mine.TakeDamage(asteroid.damage);
-		
+
 		if (mine.integrity <= 0) { // if the mine explodes we apply the damage to the asteroid
 			asteroid.TakeDamage(mine.damage);
-		}else{ // else we just do a little damage
+		} else { // else we just do a little damage
 			asteroid.TakeDamage(1);
 		}
 
@@ -184,8 +183,12 @@ class PlayState extends FlxState {
 		var bullet:Bullet = i.int1.userData.data;
 		var mine:Mine = i.int2.userData.data;
 
-		mine.TakeDamage(bullet.damage);
 		bullet.kill();
+		mine.TakeDamage(bullet.damage);
+		
+		if (mine.integrity <= 0) {
+			player.score += 1;
+		}
 	}
 
 	private function CollPlayerToMine(i:InteractionCallback) {
@@ -199,7 +202,7 @@ class PlayState extends FlxState {
 	// the chunks are created at the center of the _asteroid, with a random offset to help them not get stuck overlapping
 	// initially it was calling SpawnAsteroid() but that was changed for reasons I have now forgot
 	private function FragmentAsteroid(_asteroid:Asteroid) {
-		if (_asteroid.size > 0) { // if the asteroid is big enough to fragment
+		if (_asteroid.size != Small) { // if the asteroid is big enough to fragment
 			var numOfChunks = FlxG.random.int(3, 6);
 			var maxOff = 40; // maximum offset variable
 
@@ -245,7 +248,7 @@ class PlayState extends FlxState {
 		var distanceFromPlayer = 2000;
 		// asteroid batch around player
 		for (i in 0...asteroidSpawnNumber) {
-			var size = FlxG.random.int(1, 3); // each asteroid is of different size
+			var size = FlxG.random.getObject([Medium, Large, Huge]); // each asteroid is of different size
 			var speedVariation = FlxG.random.int(-70, 70); // each asteroid has a speed slightly different than another
 			// coming from left
 			SpawnAsteroid(Std.int(player.x - distanceFromPlayer),
@@ -270,7 +273,7 @@ class PlayState extends FlxState {
 	}
 
 	// this function exists just for the convenience of not rewriting asteroids.recycle every time
-	private function SpawnAsteroid(_x:Int = 0, _y:Int = 0, _size = 0, _xVel = 0, _yVel = 0) {
+	private function SpawnAsteroid(_x:Int = 0, _y:Int = 0, _size:AsteroidSize = Small, _xVel = 0, _yVel = 0) {
 		var asteroid = asteroids.recycle(Asteroid.new);
 		asteroid.create(_x, _y, _size, _xVel, _yVel);
 	}
