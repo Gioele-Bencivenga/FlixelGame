@@ -44,12 +44,6 @@ class PlayState extends FlxState {
 		/// EMITTERS
 		// mine emitter
 		mineExplosionEmitter = new FlxEmitter();
-		mineExplosionEmitter.loadParticles(AssetPaths.explosion__png, 50);
-		mineExplosionEmitter.scale.set(2, 2, 3, 3, 3, 3, 4, 4);
-		mineExplosionEmitter.lifespan.set(0.2, 0.5);
-		mineExplosionEmitter.speed.set(200, 500);
-		mineExplosionEmitter.alpha.set(1, 1, 0.2, 0.4);
-		mineExplosionEmitter.color.set(FlxColor.ORANGE, FlxColor.YELLOW, FlxColor.GRAY, FlxColor.RED);
 		add(mineExplosionEmitter);
 		// bullet emitter
 		bulletHitEmitter = new FlxEmitter();

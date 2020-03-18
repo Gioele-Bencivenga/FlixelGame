@@ -77,7 +77,10 @@ class Mine extends FlxNapeSprite {
 		}
 
 		/// EMITTER
-		explosionEmitter = _explosionEmitter;
+		explosionEmitter = _explosionEmitter; // we assign the emitter to the one created in the PlayState
+		explosionEmitter.loadParticles(AssetPaths.explosion__png, 50);
+		explosionEmitter.alpha.set(1, 1, 0.2, 0.4);
+		explosionEmitter.color.set(FlxColor.ORANGE, FlxColor.YELLOW, FlxColor.GRAY, FlxColor.RED);
 
 		/// BODY
 		switch size {
@@ -128,6 +131,21 @@ class Mine extends FlxNapeSprite {
 	}
 
 	public function Explode() {
+		switch size { // bigger mines will produce bigger explosions
+			case Small:
+				explosionEmitter.scale.set(2, 2, 3, 3, 3, 3, 4, 4);
+				explosionEmitter.speed.set(200, 500);
+				explosionEmitter.lifespan.set(0.2, 0.5);
+			case Medium:
+				explosionEmitter.scale.set(2.5, 2.5, 3.5, 3.5, 3.5, 3.5, 4.5, 4.5);
+				explosionEmitter.speed.set(400, 700);
+				explosionEmitter.lifespan.set(0.3, 0.6);
+			case Large:
+				explosionEmitter.scale.set(3, 3, 4, 4, 4, 4, 5, 5);
+				explosionEmitter.speed.set(600, 900);
+				explosionEmitter.lifespan.set(0.4, 0.7);
+		}
+		
 		explosionEmitter.focusOn(this);
 		explosionEmitter.start();
 
