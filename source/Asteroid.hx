@@ -9,7 +9,7 @@ enum abstract AsteroidSize(Int) to Int {
 	var Large = 2;
 	var Huge = 3;
 
-	@:op(A - B) function subtract(rhs:Int):AsteroidSize;
+	@:op(A - B) function subtract(rhs:Int):AsteroidSize; // to allow subtraction operations on the enum
 }
 
 class Asteroid extends FlxNapeSprite {
@@ -28,7 +28,7 @@ class Asteroid extends FlxNapeSprite {
 		x = _x;
 		y = _y;
 
-		// sometimes size manages to be an unexpected value, so we prevent a nasty exception here, do it in operator overload instead
+		/// SIZE ASSIGNMENT (sometimes _size is an unexpected value so we fix it here)
 		if (_size != Small && _size != Medium && _size != Large && _size != Huge) {
 			_size = Small;
 		}

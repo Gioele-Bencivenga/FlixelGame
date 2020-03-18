@@ -39,7 +39,7 @@ class Bullet extends FlxNapeSprite {
 		body.rotation = _rotation; // we rotate the bullet to the direction the player is facing
 		body.cbTypes.add(CBODYBullet);
 		body.userData.data = this;
-		body.applyImpulse(direction.muleq(11)); // we multiply the vector so the bullet travels faster
+		body.applyImpulse(direction.muleq(15)); // we multiply the vector so the bullet travels faster
 	}
 
 	override public function kill() {

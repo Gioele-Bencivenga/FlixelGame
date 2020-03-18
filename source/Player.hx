@@ -21,6 +21,7 @@ class Player extends FlxNapeSprite {
 
 	var canShoot:Bool; // pretty self explanatory flag
 	var hittable:Bool; // flag for when the player can be hit (player has invincibility frames when flickering)
+	var goingForward:Bool; // flag used by the emitter to know if it should be shooting backward or forward
 
 	var shootTimer:FlxTimer; // timer used to reset the canShoot flag
 
@@ -38,13 +39,14 @@ class Player extends FlxNapeSprite {
 		integrity = 30;
 		turnVel = 150;
 		thrust = 20;
-		maxVel = 500;
+		maxVel = 540;
 		hittable = true;
 		score = 0;
+		goingForward = true;
 		// shooting
 		shotDamage = 5;
 		canShoot = true;
-		rateOfFire = 0.20; // 1 shot each rateOfFire seconds
+		rateOfFire = 0.23; // 1 shot each rateOfFire seconds
 
 		/// GRAPHIC STUFF
 		loadGraphic(AssetPaths.ship__png);
@@ -95,8 +97,14 @@ class Player extends FlxNapeSprite {
 	override public function update(elapsed:Float) {
 		super.update(elapsed);
 
-		UpdateEmitterPosAndAngle();
 		ProcessInput();
+		UpdateEmitterPosAndAngle();
+
+		if (goingForward) {
+			maxVel = 540;
+		} else {
+			maxVel = 500;
+		}
 
 		if (body.velocity.length > maxVel) {
 			body.velocity.length = maxVel;
@@ -105,7 +113,13 @@ class Player extends FlxNapeSprite {
 
 	private function UpdateEmitterPosAndAngle() {
 		thrustEmitter.focusOn(this); // instead of emitter.setPosition((x + (width / 2)), (y + (height / 2)));
-		thrustEmitter.launchAngle.set(angle - 165, angle - 195);
+		if (goingForward) {
+			thrustEmitter.lifespan.set(0.3, 0.5);
+			thrustEmitter.launchAngle.set(angle - 165, angle - 195);
+		} else {
+			thrustEmitter.lifespan.set(0.1, 0.2);
+			thrustEmitter.launchAngle.set(angle + 15, angle - 15);
+		}
 	}
 
 	private function ProcessInput() {
@@ -114,13 +128,15 @@ class Player extends FlxNapeSprite {
 			direction = Vec2.fromPolar(thrust, body.rotation);
 			body.applyImpulse(direction); // applying the impulse in the direction vector moves the body in the direction it's facing
 
+			goingForward = true;
 			thrustEmitter.start(false, 0.01, 1);
 		}
 		if (FlxG.keys.anyPressed([S, DOWN])) {
-			if (body.velocity.length <= maxVel) {
-				direction = Vec2.fromPolar(-(thrust / 2), body.rotation);
-				body.applyImpulse(direction);
-			}
+			direction = Vec2.fromPolar(-(thrust / 2), body.rotation);
+			body.applyImpulse(direction);
+
+			goingForward = false;
+			thrustEmitter.start(false, 0.01, 1);
 		}
 		if (FlxG.keys.anyPressed([A, LEFT])) {
 			body.applyAngularImpulse(-turnVel);
