@@ -171,10 +171,12 @@ class Player extends FlxNapeSprite {
 				hittable = false;
 
 				FlxSpriteUtil.flicker(this, 1, 0.05, true, true, function(_) hittable = true); // if the syntax scares you see inlineFunctions.md
+				FlxG.camera.shake(0.02, 0.2);
 			}
 
 			if (integrity <= 0) {
 				kill();
+				FlxG.camera.shake(0.07, 1);
 			}
 		}
 	}

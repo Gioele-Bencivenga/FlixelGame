@@ -33,6 +33,12 @@ class Bullet extends FlxNapeSprite {
 
 		/// EMITTER
 		hitEmitter = PlayState.bulletHitEmitter;
+		hitEmitter.loadParticles(AssetPaths.laserHit__png, 10);
+		hitEmitter.scale.set(2, 2, 2, 2, 1, 1, 1, 1);
+		hitEmitter.lifespan.set(0.2, 0.5);
+		hitEmitter.speed.set(200, 500);
+		hitEmitter.alpha.set(1, 1, 0.2, 0.4);
+		hitEmitter.color.set(FlxColor.WHITE, FlxColor.CYAN, FlxColor.BLUE, FlxColor.CYAN);
 
 		/// BODY
 		createRectangularBody(40, 15);

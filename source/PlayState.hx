@@ -17,19 +17,18 @@ class PlayState extends FlxState {
 	var player:Player;
 
 	public var asteroids:FlxTypedGroup<Asteroid>; // group of asteroids, having collisions in groups improves performance
-
 	var asteroidTimer:FlxTimer; // timer used to spawn asteroids at an interval
 	var asteroidSpawnRate:Int; // how often we spawn a batch of asteroids
 
+	public var mines:FlxTypedGroup<Mine>; // group of mines
+	var mineExplosionEmitter:FlxEmitter;
+	
 	public static var bullets:FlxTypedGroup<Bullet>; // group of bullets
-
+	public static var bulletHitEmitter:FlxEmitter;
+	
 	var objectKillTimer:FlxTimer; // timer to kill far objects
 
-	public var mines:FlxTypedGroup<Mine>; // group of mines
-
-	var mineExplosionEmitter:FlxEmitter;
-
-	public static var bulletHitEmitter:FlxEmitter;
+	var hud:HUD; // the hud to display integrity, score and other stuff
 
 	var text:FlxText;
 
@@ -42,17 +41,9 @@ class PlayState extends FlxState {
 		super.create();
 
 		/// EMITTERS
-		// mine emitter
 		mineExplosionEmitter = new FlxEmitter();
 		add(mineExplosionEmitter);
-		// bullet emitter
 		bulletHitEmitter = new FlxEmitter();
-		bulletHitEmitter.loadParticles(AssetPaths.laserHit__png, 10);
-		bulletHitEmitter.scale.set(2, 2, 2, 2, 1, 1, 1, 1);
-		bulletHitEmitter.lifespan.set(0.2, 0.5);
-		bulletHitEmitter.speed.set(200, 500);
-		bulletHitEmitter.alpha.set(1, 1, 0.2, 0.4);
-		bulletHitEmitter.color.set(FlxColor.WHITE, FlxColor.CYAN, FlxColor.BLUE, FlxColor.CYAN);
 		add(bulletHitEmitter);
 
 		/// PLAYER
@@ -61,11 +52,14 @@ class PlayState extends FlxState {
 		add(player.explosionEmitter);
 		add(player);
 
+		/// HUD
+		hud = new HUD();
+		add(hud);
+
 		/// CAMERA
 		FlxG.camera.follow(player, FlxCameraFollowStyle.LOCKON);
 		camera.followLead.x += 5;
 		camera.followLead.y += 5;
-		// SetZoom(FlxG.camera.zoom -= 0.3);
 		SetZoom(0.4);
 
 		/// ASTEROIDS
