@@ -1,3 +1,4 @@
+import flixel.FlxG;
 import flixel.text.FlxText;
 import flixel.util.FlxColor;
 import flixel.FlxSprite;
@@ -18,6 +19,10 @@ class HUD extends FlxGroup {
         background.makeGraphic(width, height, FlxColor.BLUE);
         add(background);
 
-        add(new FlxText(background.x + 5, background.y + 5, width, "This is a try"));
+        //add(new FlxText(background.x + 5, background.y + 5, width, "This is a try"));
+    }
+
+    override public function update(elapsed:Float) {
+        super.update(elapsed);
     }
 }

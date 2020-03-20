@@ -17,15 +17,17 @@ class PlayState extends FlxState {
 	var player:Player;
 
 	public var asteroids:FlxTypedGroup<Asteroid>; // group of asteroids, having collisions in groups improves performance
+
 	var asteroidTimer:FlxTimer; // timer used to spawn asteroids at an interval
 	var asteroidSpawnRate:Int; // how often we spawn a batch of asteroids
 
 	public var mines:FlxTypedGroup<Mine>; // group of mines
+
 	var mineExplosionEmitter:FlxEmitter;
-	
+
 	public static var bullets:FlxTypedGroup<Bullet>; // group of bullets
 	public static var bulletHitEmitter:FlxEmitter;
-	
+
 	var objectKillTimer:FlxTimer; // timer to kill far objects
 
 	var hud:HUD; // the hud to display integrity, score and other stuff
@@ -112,8 +114,8 @@ class PlayState extends FlxState {
 		objectKillTimer = new FlxTimer();
 		objectKillTimer.start(1, RemoveFarObjects, 0);
 
-		text = new FlxText(player.x, player.y, FlxG.width);
-		text.setFormat(null, 32, FlxColor.WHITE, CENTER, OUTLINE);
+		text = new FlxText(0, 0, 200, "Score: " + player.score);
+		text.setFormat(null, 40, FlxColor.WHITE, CENTER, OUTLINE);
 		add(text);
 	}
 
@@ -313,6 +315,9 @@ class PlayState extends FlxState {
 		if (FlxG.keys.justPressed.COMMA) {
 			SetZoom(FlxG.camera.zoom -= 0.3);
 		}
+
+		text.setPosition((camera.scroll.x + (FlxG.width / 2)) - text.width / 2, camera.scroll.y - FlxG.height / 2);
+		text.text = 'Score: ${Std.string(player.score)}';
 
 		super.update(elapsed);
 	}
