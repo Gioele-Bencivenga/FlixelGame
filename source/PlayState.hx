@@ -334,6 +334,6 @@ class PlayState extends FlxState {
 	}
 
 	private function SetZoom(_zoom:Float) {
-		FlxG.camera.zoom = FlxMath.bound(_zoom, 0.4, 3);
+		gameCamera.zoom = FlxMath.bound(_zoom, 0.4, 3);
 	}
 }
