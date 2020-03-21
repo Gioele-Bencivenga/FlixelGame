@@ -1,5 +1,6 @@
 package;
 
+import flixel.FlxCamera;
 import Asteroid.AsteroidSize;
 import Mine.MineSize;
 import flixel.effects.particles.FlxEmitter;
@@ -32,6 +33,9 @@ class PlayState extends FlxState {
 
 	var hud:HUD; // the hud to display integrity, score and other stuff
 
+	var gameCamera:FlxCamera;
+	var hudCamera:FlxCamera;
+
 	var text:FlxText;
 
 	override public function create():Void {
@@ -54,16 +58,6 @@ class PlayState extends FlxState {
 		add(player.explosionEmitter);
 		add(player);
 
-		/// HUD
-		hud = new HUD();
-		add(hud);
-
-		/// CAMERA
-		FlxG.camera.follow(player, FlxCameraFollowStyle.LOCKON);
-		camera.followLead.x += 5;
-		camera.followLead.y += 5;
-		SetZoom(0.4);
-
 		/// ASTEROIDS
 		asteroids = new FlxTypedGroup<Asteroid>();
 		add(asteroids);
@@ -76,6 +70,27 @@ class PlayState extends FlxState {
 		/// MINES
 		mines = new FlxTypedGroup<Mine>();
 		add(mines);
+		
+		/// CAMERAS
+		// game camera
+		gameCamera = new FlxCamera(0, 0, FlxG.width, FlxG.height);
+		gameCamera.bgColor = FlxColor.BLACK;
+		gameCamera.zoom = 0.4;
+		gameCamera.follow(player, LOCKON);
+		gameCamera.followLead.x += 5;
+		gameCamera.followLead.y += 5;
+		FlxG.cameras.reset(gameCamera);
+		// hud camera
+		hudCamera = new FlxCamera(0, 0, FlxG.width, FlxG.height);
+		hudCamera.bgColor = FlxColor.TRANSPARENT;
+		FlxG.cameras.add(hudCamera);
+
+		FlxCamera.defaultCameras = [gameCamera];
+		
+		/// HUD
+		hud = new HUD(player);
+		hud.cameras = [hudCamera];
+		add(hud);
 
 		/// COLLISIONS
 		// asteroid to asteroid collision listener
@@ -113,10 +128,6 @@ class PlayState extends FlxState {
 		// objects kill
 		objectKillTimer = new FlxTimer();
 		objectKillTimer.start(1, RemoveFarObjects, 0);
-
-		text = new FlxText(0, 0, 200, "Score: " + player.score);
-		text.setFormat(null, 40, FlxColor.WHITE, CENTER, OUTLINE);
-		add(text);
 	}
 
 	private function CollAsteroidToPlayer(i:InteractionCallback) {
@@ -316,8 +327,8 @@ class PlayState extends FlxState {
 			SetZoom(FlxG.camera.zoom -= 0.3);
 		}
 
-		text.setPosition((camera.scroll.x + (FlxG.width / 2)) - text.width / 2, camera.scroll.y - FlxG.height / 2);
-		text.text = 'Score: ${Std.string(player.score)}';
+		//text.setPosition((camera.scroll.x + (FlxG.width / 2)) - text.width / 2, camera.scroll.y - FlxG.height / 2);
+		//text.text = 'Score: ${Std.string(player.score)}';
 
 		super.update(elapsed);
 	}

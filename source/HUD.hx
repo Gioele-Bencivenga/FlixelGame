@@ -1,3 +1,4 @@
+import flixel.util.FlxSpriteUtil;
 import flixel.FlxG;
 import flixel.text.FlxText;
 import flixel.util.FlxColor;
@@ -5,24 +6,37 @@ import flixel.FlxSprite;
 import flixel.group.FlxGroup;
 
 class HUD extends FlxGroup {
-	public var width(default, null):Int;
-	public var height(default, null):Int;
-    public var background(default, null):FlxSprite;
-    
-    public function new(_width:Int = 100, _height:Int = 50) {
-        super();
-        
-        width = _width;
-        height = _height;
+	var background:FlxSprite;
 
-        background = new FlxSprite(0, 0);
-        background.makeGraphic(width, height, FlxColor.BLUE);
-        add(background);
+	var txtScore:FlxText;
+	var txtHealth:FlxText;
 
-        //add(new FlxText(background.x + 5, background.y + 5, width, "This is a try"));
-    }
+	var player:Player;
 
-    override public function update(elapsed:Float) {
-        super.update(elapsed);
-    }
+	public function new(_player:Player) {
+		super();
+
+		player = _player;
+
+		background = new FlxSprite();
+		background.makeGraphic(FlxG.width, 50, FlxColor.GRAY);
+		FlxSpriteUtil.drawRect(background, 0, 48, FlxG.width, 2, FlxColor.WHITE);
+		add(background);
+		background.scrollFactor.set(0, 0);
+
+		txtScore = new FlxText((FlxG.width / 2) - 100, 0, 200, "Score: " + player.score, 40);
+		add(txtScore);
+		txtScore.scrollFactor.set(0, 0);
+
+		// we call the function on each element, by setting scrollFactor to 0,0 the elements won't scroll based on camera movements
+		// forEach(SetScrollFactor); figure out/ask why it doesn't work
+	}
+
+	public function UpdateHUD(){
+		
+	}
+
+	private function SetScrollFactor(spr:FlxSprite):Void {
+		spr.scrollFactor.set(0, 0);
+	}
 }
