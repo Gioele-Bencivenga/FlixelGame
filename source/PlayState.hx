@@ -136,6 +136,8 @@ class PlayState extends FlxState {
 		var asteroid:Asteroid = i.int1.userData.data;
 
 		player.TakeDamage(asteroid.damage);
+
+		hud.UpdateHUD();
 	}
 
 	private function CollAsteroidToAsteroid(i:InteractionCallback) {
@@ -159,8 +161,12 @@ class PlayState extends FlxState {
 		asteroid.TakeDamage(bullet.damage);
 		bullet.kill();
 
-		if (asteroid.integrity <= 0)
+		if (asteroid.integrity <= 0) {
 			FragmentAsteroid(asteroid);
+
+			player.score += asteroid.size + 1;
+			hud.UpdateHUD();
+		}
 	}
 
 	private function CollMineToAsteroid(i:InteractionCallback) {
@@ -187,7 +193,8 @@ class PlayState extends FlxState {
 		mine.TakeDamage(bullet.damage);
 
 		if (mine.integrity <= 0) {
-			player.score += 1;
+			player.score += (mine.size + 1) * 10; // player gets 10 points for a small mine, 20 for medium and 30 for large
+			hud.UpdateHUD();
 		}
 	}
 
@@ -196,6 +203,8 @@ class PlayState extends FlxState {
 
 		mine.Explode();
 		player.TakeDamage(mine.damage);
+
+		hud.UpdateHUD();
 	}
 
 	// this function creates between 3 and 6 asteroids (chunks) that are smaller than the one passed as an argument (_asteroid)

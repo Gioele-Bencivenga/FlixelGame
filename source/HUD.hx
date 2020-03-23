@@ -5,7 +5,7 @@ import flixel.util.FlxColor;
 import flixel.FlxSprite;
 import flixel.group.FlxGroup;
 
-class HUD extends FlxGroup {
+class HUD extends FlxTypedGroup<FlxSprite> {
 	var background:FlxSprite;
 
 	var txtScore:FlxText;
@@ -22,21 +22,19 @@ class HUD extends FlxGroup {
 		background.makeGraphic(FlxG.width, 50, FlxColor.GRAY);
 		FlxSpriteUtil.drawRect(background, 0, 48, FlxG.width, 2, FlxColor.WHITE);
 		add(background);
-		background.scrollFactor.set(0, 0);
 
-		txtScore = new FlxText((FlxG.width / 2) - 100, 0, 200, "Score: " + player.score, 40);
+		txtScore = new FlxText((FlxG.width / 2) - 100, 0, 1000, "Score: " + player.score, 40);
 		add(txtScore);
-		txtScore.scrollFactor.set(0, 0);
 
 		// we call the function on each element, by setting scrollFactor to 0,0 the elements won't scroll based on camera movements
-		// forEach(SetScrollFactor); figure out/ask why it doesn't work
+		forEach(function(el:FlxSprite) {
+			el.scrollFactor.set(0, 0);
+		});
 	}
 
-	public function UpdateHUD(){
-		
-	}
+	public function UpdateHUD() {
+		txtScore.text = "Score: " + Std.string(player.score);
 
-	private function SetScrollFactor(spr:FlxSprite):Void {
-		spr.scrollFactor.set(0, 0);
+		//txtHealth.text = Std.string(player.health);
 	}
 }

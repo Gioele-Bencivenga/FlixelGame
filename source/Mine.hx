@@ -19,7 +19,7 @@ class Mine extends FlxNapeSprite {
 	public var integrity(default, null):Int;
 	public var damage(default, null):Int;
 
-	var size(default, null):MineSize;
+	public var size(default, null):MineSize;
 
 	var maxVel:Int;
 
