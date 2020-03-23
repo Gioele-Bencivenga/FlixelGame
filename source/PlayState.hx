@@ -70,7 +70,7 @@ class PlayState extends FlxState {
 		/// MINES
 		mines = new FlxTypedGroup<Mine>();
 		add(mines);
-		
+
 		/// CAMERAS
 		// game camera
 		gameCamera = new FlxCamera(0, 0, FlxG.width, FlxG.height);
@@ -86,10 +86,12 @@ class PlayState extends FlxState {
 		FlxG.cameras.add(hudCamera);
 
 		FlxCamera.defaultCameras = [gameCamera];
-		
+
 		/// HUD
 		hud = new HUD(player);
-		hud.cameras = [hudCamera];
+		hud.forEach(function(element) {
+			element.cameras = [hudCamera];
+		});
 		add(hud);
 
 		/// COLLISIONS
@@ -327,8 +329,8 @@ class PlayState extends FlxState {
 			SetZoom(FlxG.camera.zoom -= 0.3);
 		}
 
-		//text.setPosition((camera.scroll.x + (FlxG.width / 2)) - text.width / 2, camera.scroll.y - FlxG.height / 2);
-		//text.text = 'Score: ${Std.string(player.score)}';
+		// text.setPosition((camera.scroll.x + (FlxG.width / 2)) - text.width / 2, camera.scroll.y - FlxG.height / 2);
+		// text.text = 'Score: ${Std.string(player.score)}';
 
 		super.update(elapsed);
 	}
