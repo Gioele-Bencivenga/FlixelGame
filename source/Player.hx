@@ -10,7 +10,8 @@ import flixel.addons.nape.FlxNapeSprite;
 
 class Player extends FlxNapeSprite {
 	var thrust:Float; // aka speed
-	var integrity:Int; // aka health, it's a property so it can be read from wherever but only set from inside this class
+	public var integrity(default, null):Int; // aka health, it's a property so it can be read from wherever but only set from inside this class
+	public var maxIntegrity(default, null):Int;
 	var turnVel:Float; // spinning speed
 	var maxVel:Float; // maximum velocity
 
@@ -36,7 +37,8 @@ class Player extends FlxNapeSprite {
 		super(FlxG.width / 2, FlxG.height / 2); // we create the obj at the centre of the screen
 
 		/// STATS STUFF
-		integrity = 30;
+		maxIntegrity = 50;
+		integrity = maxIntegrity;
 		turnVel = 150;
 		thrust = 20;
 		maxVel = 540;
