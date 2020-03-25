@@ -66,7 +66,7 @@ class Mine extends FlxNapeSprite {
 		playerPos = _playerPos;
 
 		/// GRAPHIC
-		loadGraphic(AssetPaths.mine__png);
+		loadGraphic(AssetPaths.mine__png, true, 17, 17);
 		switch size {
 			case Small:
 				setGraphicSize(35, 35);
@@ -75,6 +75,8 @@ class Mine extends FlxNapeSprite {
 			case Large:
 				setGraphicSize(85, 85);
 		}
+		animation.add('blink', [0, 1], FlxG.random.int(1, 6));
+		animation.play('blink');
 
 		/// EMITTER
 		explosionEmitter = _explosionEmitter; // we assign the emitter to the one created in the PlayState
@@ -145,7 +147,7 @@ class Mine extends FlxNapeSprite {
 				explosionEmitter.speed.set(600, 900);
 				explosionEmitter.lifespan.set(0.4, 0.7);
 		}
-		
+
 		explosionEmitter.focusOn(this);
 		explosionEmitter.start();
 

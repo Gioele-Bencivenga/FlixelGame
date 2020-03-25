@@ -38,7 +38,7 @@ class HUD extends FlxTypedGroup<FlxSprite> {
 		add(background);
 
 		barWidth = 400;
-		healthBar = new FlxBar((FlxG.width / 2) - (barWidth / 2), background.y + 5, LEFT_TO_RIGHT, barWidth, backgroundHeight - 10, player, 'integrity', 0,
+		healthBar = new FlxBar((FlxG.width / 2) - (barWidth / 2), background.y + 7, LEFT_TO_RIGHT, barWidth, backgroundHeight - 10, player, 'integrity', 0,
 			player.maxIntegrity, false);
 		healthBar.createColoredEmptyBar(FlxColor.fromRGB(0, 0, 0, 140), true, dividerColor);
 		healthBar.createColoredFilledBar(FlxColor.fromRGB(0, 175, 255, 170), true, dividerColor);
