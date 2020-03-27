@@ -55,11 +55,11 @@ class Asteroid extends FlxNapeSprite {
 		if (size == Small) {
 			integrity = 8;
 		} else if (size == Medium) {
-			integrity = 16;
+			integrity = 13;
 		} else if (size == Large) {
-			integrity = 26;
+			integrity = 18;
 		} else if (size == Huge) {
-			integrity = 36;
+			integrity = 23;
 		} else {
 			trace("Size is different than expected values?!?!?");
 		}

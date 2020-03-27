@@ -16,16 +16,19 @@ class HUD extends FlxTypedGroup<FlxSprite> {
 
 	var txtScore:FlxText;
 	var txtHealth:FlxText;
+	var txtEnemies:FlxText;
 
 	var healthBar:FlxBar;
 	var barWidth:Int;
 
 	var player:Player;
+	var mines:FlxTypedGroup<Mine>;
 
-	public function new(_player:Player) {
+	public function new(_player:Player, _mines:FlxTypedGroup<Mine>) {
 		super();
 
 		player = _player;
+		mines = _mines;
 
 		backgroundHeight = 40;
 		backgroundColor = FlxColor.fromRGB(0, 0, 255, 110);
@@ -50,6 +53,9 @@ class HUD extends FlxTypedGroup<FlxSprite> {
 		txtScore = new FlxText(10, background.y + 5, 400, 'SCORE: ${player.score}', 25);
 		add(txtScore);
 
+		txtEnemies = new FlxText(FlxG.width - 150, background.y + 5, 150, 'MINES: ${mines.countLiving()}', 25);
+		add(txtEnemies);
+
 		// we call the function on each element, by setting scrollFactor to 0,0 the elements won't scroll based on camera movements
 		forEach(function(el:FlxSprite) {
 			el.scrollFactor.set(0, 0);
@@ -60,5 +66,7 @@ class HUD extends FlxTypedGroup<FlxSprite> {
 		txtScore.text = 'SCORE: ${player.score}';
 
 		txtHealth.text = 'HP: ${player.integrity}/${player.maxIntegrity}';
+
+		txtEnemies.text = 'MINES: ${mines.countLiving()}';
 	}
 }

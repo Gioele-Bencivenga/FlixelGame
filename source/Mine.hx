@@ -80,7 +80,7 @@ class Mine extends FlxNapeSprite {
 
 		/// EMITTER
 		explosionEmitter = _explosionEmitter; // we assign the emitter to the one created in the PlayState
-		explosionEmitter.loadParticles(AssetPaths.explosion__png, 50);
+		explosionEmitter.loadParticles(AssetPaths.explosion__png, 80);
 		explosionEmitter.alpha.set(1, 1, 0.2, 0.4);
 		explosionEmitter.color.set(FlxColor.ORANGE, FlxColor.YELLOW, FlxColor.GRAY, FlxColor.RED);
 

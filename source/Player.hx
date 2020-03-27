@@ -10,8 +10,10 @@ import flixel.addons.nape.FlxNapeSprite;
 
 class Player extends FlxNapeSprite {
 	var thrust:Float; // aka speed
+
 	public var integrity(default, null):Int; // aka health, it's a property so it can be read from wherever but only set from inside this class
 	public var maxIntegrity(default, null):Int;
+
 	var turnVel:Float; // spinning speed
 	var maxVel:Float; // maximum velocity
 
@@ -39,8 +41,8 @@ class Player extends FlxNapeSprite {
 		/// STATS STUFF
 		maxIntegrity = 50;
 		integrity = maxIntegrity;
-		turnVel = 150;
-		thrust = 20;
+		turnVel = 170;
+		thrust = 50;
 		maxVel = 540;
 		hittable = true;
 		score = 0;
@@ -57,7 +59,7 @@ class Player extends FlxNapeSprite {
 		/// PHYSICS STUFF
 		createCircularBody(22); // creating hitbox
 		setBodyMaterial(0.1, 0.2, 0.4, 1, 0.001);
-		setDrag(0.999, 0.93); // setting a small amount of drag so that the player will slow down over time
+		setDrag(0.999, 0.90); // setting a small amount of drag so that the player will slow down over time
 		body.cbTypes.add(CBODYPlayer);
 		body.userData.data = this; // we add this to the body's userdata so that we can access variables when colliding
 
@@ -87,7 +89,7 @@ class Player extends FlxNapeSprite {
 		thrustEmitter.lifespan.set(0.3, 0.5);
 		thrustEmitter.speed.set(1000);
 		thrustEmitter.alpha.set(1, 1, 0.2, 0.4);
-		thrustEmitter.color.set(FlxColor.ORANGE, FlxColor.YELLOW, FlxColor.GRAY, FlxColor.RED);
+		thrustEmitter.color.set(FlxColor.YELLOW);
 
 		explosionEmitter.scale.set(2, 2, 3, 3, 4, 4, 5, 5);
 		explosionEmitter.lifespan.set(1.5, 3);
@@ -134,7 +136,7 @@ class Player extends FlxNapeSprite {
 			thrustEmitter.start(false, 0.01, 1);
 		}
 		if (FlxG.keys.anyPressed([S, DOWN])) {
-			direction = Vec2.fromPolar(-(thrust / 2), body.rotation);
+			direction = Vec2.fromPolar(-(thrust / 3), body.rotation);
 			body.applyImpulse(direction);
 
 			goingForward = false;
@@ -180,6 +182,13 @@ class Player extends FlxNapeSprite {
 				kill();
 				FlxG.camera.shake(0.07, 1);
 			}
+		}
+
+		if (integrity < maxIntegrity / 2) {
+			thrustEmitter.color.set(FlxColor.ORANGE);
+		}
+		if (integrity < maxIntegrity / 4) {
+			thrustEmitter.color.set(FlxColor.RED);
 		}
 	}
 

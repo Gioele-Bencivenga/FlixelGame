@@ -88,7 +88,7 @@ class PlayState extends FlxState {
 		FlxCamera.defaultCameras = [gameCamera];
 
 		/// HUD
-		hud = new HUD(player);
+		hud = new HUD(player, mines);
 		hud.forEach(function(element) {
 			element.cameras = [hudCamera];
 		});
@@ -113,6 +113,10 @@ class PlayState extends FlxState {
 		// mine to asteroid collision listener
 		var colListMineToAster = new InteractionListener(CbEvent.BEGIN, InteractionType.COLLISION, Mine.CBODYMine, Asteroid.CBODYAsteroid, CollMineToAsteroid);
 		FlxNapeSpace.space.listeners.add(colListMineToAster);
+
+		// mine to mine collision listener
+		var colListMineToMine = new InteractionListener(CbEvent.BEGIN, InteractionType.COLLISION, Mine.CBODYMine, Mine.CBODYMine, CollMineToMine);
+		FlxNapeSpace.space.listeners.add(colListMineToMine);
 
 		// bullet to mine collision listener
 		var colListBullToMine = new InteractionListener(CbEvent.BEGIN, InteractionType.COLLISION, Bullet.CBODYBullet, Mine.CBODYMine, CollBulletToMine);
@@ -177,12 +181,20 @@ class PlayState extends FlxState {
 
 		if (mine.integrity <= 0) { // if the mine explodes we apply the damage to the asteroid
 			asteroid.TakeDamage(mine.damage);
-		} else { // else we just do a little damage
-			asteroid.TakeDamage(1);
+		} else { // else we just do a little damage to the asteroid
+			asteroid.TakeDamage(mine.size + 1);
 		}
 
 		if (asteroid.integrity <= 0)
 			FragmentAsteroid(asteroid);
+	}
+
+	private function CollMineToMine(i:InteractionCallback) {
+		var mine1:Mine = i.int1.userData.data;
+		var mine2:Mine = i.int2.userData.data;
+
+		mine1.TakeDamage(mine2.damage);
+		mine2.TakeDamage(mine1.damage);
 	}
 
 	private function CollBulletToMine(i:InteractionCallback) {
@@ -229,22 +241,33 @@ class PlayState extends FlxState {
 		}
 	}
 
-	// function used by the timer for creating asteroid in the distance at a set interval
-	private function GenerateAsteroidsAndMines(_timer:FlxTimer):Void {
-		var maxMineNumber; // how many mines in the space at a time
-		if (player.score < 20) {
-			maxMineNumber = 2;
-		} else if (player.score < 40) {
-			maxMineNumber = 3;
-		} else if (player.score < 60) {
-			maxMineNumber = 4;
-		} else {
-			maxMineNumber = 5;
+	// this function exists to prevent mines from spawning too close to the player
+	private function TweakOffset(_offset:Int):Int {
+		if (_offset < 1000 && _offset > 0) {
+			_offset += 1000;
+		}
+		if (_offset > -1000 && _offset < 0) {
+			_offset -= 1000;
 		}
 
+		return _offset;
+	}
+
+	// function used by the timer for creating asteroid in the distance at a set interval
+	private function GenerateAsteroidsAndMines(_timer:FlxTimer):Void {
+		var maxMineNumber:Int; // how many mines in the space at a time
+		maxMineNumber = 1 + Math.round(Math.pow(player.score / 100, 1.4));
+
 		if (mines.countLiving() < maxMineNumber) {
-			var size = FlxG.random.getObject([MineSize.Small, MineSize.Medium, MineSize.Large]);
-			SpawnMine(Std.int(player.x - 1500), Std.int(player.y + 1500), size);
+			var size:MineSize = FlxG.random.getObject([MineSize.Small, MineSize.Medium, MineSize.Large]);
+			var offsX:Int = FlxG.random.int(-2000, 2000);
+			var offsY:Int = FlxG.random.int(-2000, 2000);
+
+			offsX = TweakOffset(offsX);
+			offsY = TweakOffset(offsY);
+
+			SpawnMine(Std.int(player.x + offsX), Std.int(player.y + offsY), size);
+			hud.UpdateHUD();
 		}
 
 		var asteroidSpawnNumber; // how many asteroids for each side
