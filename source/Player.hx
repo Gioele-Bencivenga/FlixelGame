@@ -187,6 +187,7 @@ class Player extends FlxNapeSprite {
 		if (integrity < maxIntegrity / 2) {
 			thrustEmitter.color.set(FlxColor.ORANGE);
 		}
+		
 		if (integrity < maxIntegrity / 4) {
 			thrustEmitter.color.set(FlxColor.RED);
 		}
