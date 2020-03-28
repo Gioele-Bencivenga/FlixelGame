@@ -58,7 +58,7 @@ class Player extends FlxNapeSprite {
 
 		/// PHYSICS STUFF
 		createCircularBody(22); // creating hitbox
-		setBodyMaterial(0.1, 0.2, 0.4, 1, 0.001);
+		setBodyMaterial(1, 0.001, 0.001, 1, 0.001);
 		setDrag(0.999, 0.90); // setting a small amount of drag so that the player will slow down over time
 		body.cbTypes.add(CBODYPlayer);
 		body.userData.data = this; // we add this to the body's userdata so that we can access variables when colliding

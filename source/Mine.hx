@@ -51,15 +51,15 @@ class Mine extends FlxNapeSprite {
 			case Small:
 				damage = 5;
 				integrity = 20;
-				maxVel = 610;
+				maxVel = 700;
 			case Medium:
 				damage = 10;
 				integrity = 40;
-				maxVel = 580;
+				maxVel = 670;
 			case Large:
 				damage = 20;
 				integrity = 60;
-				maxVel = 560;
+				maxVel = 640;
 		}
 
 		/// REFERENCES
@@ -107,7 +107,9 @@ class Mine extends FlxNapeSprite {
 	}
 
 	private function MoveTowardsPlayer() {
-		direction = new Vec2(playerPos.x, playerPos.y);
+		var randOffX = FlxG.random.int(-200, 200); // random offset so that mines don't go to the exact player position
+		var randOffY = FlxG.random.int(-200, 200);
+		direction = new Vec2(playerPos.x + randOffX, playerPos.y + randOffY);
 		direction.subeq(body.position);
 		direction.length = switch size { // denser bodies need a longer vector in order to move fast enough
 			case Small: 50;
