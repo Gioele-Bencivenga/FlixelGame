@@ -49,16 +49,16 @@ class Mine extends FlxNapeSprite {
 		/// STATS
 		switch size {
 			case Small:
-				damage = 5;
-				integrity = 20;
+				damage = 4;
+				integrity = 15;
 				maxVel = 700;
 			case Medium:
-				damage = 10;
-				integrity = 40;
+				damage = 8;
+				integrity = 30;
 				maxVel = 670;
 			case Large:
-				damage = 20;
-				integrity = 60;
+				damage = 12;
+				integrity = 40;
 				maxVel = 640;
 		}
 

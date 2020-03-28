@@ -48,7 +48,7 @@ class Player extends FlxNapeSprite {
 		score = 0;
 		goingForward = true;
 		// shooting
-		shotDamage = 5;
+		shotDamage = 7;
 		canShoot = true;
 		rateOfFire = 0.23; // 1 shot each rateOfFire seconds
 

@@ -361,9 +361,6 @@ class PlayState extends FlxState {
 			SetZoom(FlxG.camera.zoom -= 0.3);
 		}
 
-		// text.setPosition((camera.scroll.x + (FlxG.width / 2)) - text.width / 2, camera.scroll.y - FlxG.height / 2);
-		// text.text = 'Score: ${Std.string(player.score)}';
-
 		super.update(elapsed);
 	}
 
