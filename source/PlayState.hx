@@ -14,7 +14,10 @@ import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.FlxG;
 import flixel.FlxState;
 
+
 class PlayState extends FlxState {
+	public static var MAX_OBJECT_DISTANCE = 3000;
+
 	var player:Player;
 
 	public var asteroids:FlxTypedGroup<Asteroid>; // group of asteroids, having collisions in groups improves performance
@@ -285,11 +288,11 @@ class PlayState extends FlxState {
 		}
 
 		var baseSpeed = 100;
-		var distanceFromPlayer = 2000;
+		var distanceFromPlayer = 2500;
 		// asteroid batch around player
 		for (i in 0...asteroidSpawnNumber) {
 			var size = FlxG.random.getObject([AsteroidSize.Medium, AsteroidSize.Large, AsteroidSize.Huge]); // each asteroid is of different size
-			var speedVariation = FlxG.random.int(-70, 70); // each asteroid has a speed slightly different than another
+			var speedVariation = FlxG.random.int(-200, 200); // each asteroid has a speed slightly different than another
 			// coming from left
 			SpawnAsteroid(Std.int(player.x - distanceFromPlayer),
 				Std.int(player.y + FlxG.random.int(-Std.int(distanceFromPlayer / 1.5), Std.int(distanceFromPlayer / 1.5))), size, baseSpeed + speedVariation,
@@ -314,7 +317,7 @@ class PlayState extends FlxState {
 
 	private function SpawnMine(_x:Int = 0, _y:Int = 0, _size:MineSize = Small) {
 		var mine = mines.recycle(Mine.new);
-		mine.create(_x, _y, _size, mineExplosionEmitter, player.body.position);
+		mine.create(_x, _y, _size, mineExplosionEmitter, player);
 		mine.body.velocity.setxy(FlxG.random.int(-200, 200), FlxG.random.int(-20, 20));
 	}
 
@@ -326,22 +329,20 @@ class PlayState extends FlxState {
 
 	// function used by the killTimer for removing objects that are too far away
 	private function RemoveFarObjects(_timer:FlxTimer):Void {
-		var maxDistance = 2500;
-
 		for (bullet in bullets) {
-			if (!FlxMath.isDistanceWithin(bullet, player, maxDistance)) {
+			if (!FlxMath.isDistanceWithin(bullet, player, MAX_OBJECT_DISTANCE)) {
 				bullet.kill();
 			}
 		}
 
 		for (asteroid in asteroids) {
-			if (!FlxMath.isDistanceWithin(asteroid, player, maxDistance)) {
+			if (!FlxMath.isDistanceWithin(asteroid, player, MAX_OBJECT_DISTANCE)) {
 				asteroid.kill();
 			}
 		}
 
 		for (mine in mines) {
-			if (!FlxMath.isDistanceWithin(mine, player, maxDistance)) {
+			if (!FlxMath.isDistanceWithin(mine, player, MAX_OBJECT_DISTANCE)) {
 				mine.kill();
 			}
 		}

@@ -9,6 +9,9 @@ class Main extends Sprite
 {
 	public function new() {
 		super();
+
+		FlxG.fixedTimestep = false;
+
 		addChild(new FlxGame(1280, 720, MenuState, 1, 40, 40));
 		addChild(new openfl.display.FPS(5, 5, FlxColor.WHITE));
 

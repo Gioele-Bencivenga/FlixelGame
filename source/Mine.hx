@@ -1,3 +1,4 @@
+import flixel.system.FlxSound;
 import flixel.FlxG;
 import flixel.FlxObject;
 import haxe.display.Display.DeterminePackageResult;
@@ -27,15 +28,17 @@ class Mine extends FlxNapeSprite {
 
 	var direction:Vec2;
 
-	var playerPos:Vec2;
+	var player:Player;
 
 	var explosionEmitter:FlxEmitter;
+
+	var explosionSound:FlxSound; // sound played when the mine explodes
 
 	public function new() {
 		super();
 	}
 
-	public function create(_x:Int = 0, _y:Int = 0, _size:MineSize, _explosionEmitter:FlxEmitter, _playerPos:Vec2) {
+	public function create(_x:Int = 0, _y:Int = 0, _size:MineSize, _explosionEmitter:FlxEmitter, _player:Player) {
 		/// POSITION
 		x = _x;
 		y = _y;
@@ -63,7 +66,7 @@ class Mine extends FlxNapeSprite {
 		}
 
 		/// REFERENCES
-		playerPos = _playerPos;
+		player = _player;
 
 		/// GRAPHIC
 		loadGraphic(AssetPaths.mine__png, true, 17, 17);
@@ -98,6 +101,16 @@ class Mine extends FlxNapeSprite {
 		}
 		body.cbTypes.add(CBODYMine);
 		body.userData.data = this;
+
+		/// SOUND
+		switch size {
+			case Small:
+				explosionSound = FlxG.sound.load(AssetPaths.smallMineExp__wav);
+			case Medium:
+				explosionSound = FlxG.sound.load(AssetPaths.mediumMineExp__wav);
+			case Large:
+				explosionSound = FlxG.sound.load(AssetPaths.largeMineExp__wav);
+		}
 	}
 
 	override public function update(elapsed:Float) {
@@ -109,7 +122,7 @@ class Mine extends FlxNapeSprite {
 	private function MoveTowardsPlayer() {
 		var randOffX = FlxG.random.int(-200, 200); // random offset so that mines don't go to the exact player position
 		var randOffY = FlxG.random.int(-200, 200);
-		direction = new Vec2(playerPos.x + randOffX, playerPos.y + randOffY);
+		direction = new Vec2(player.body.position.x + randOffX, player.body.position.y + randOffY);
 		direction.subeq(body.position);
 		direction.length = switch size { // denser bodies need a longer vector in order to move fast enough
 			case Small: 50;
@@ -152,6 +165,9 @@ class Mine extends FlxNapeSprite {
 
 		explosionEmitter.focusOn(this);
 		explosionEmitter.start();
+
+		explosionSound.proximity(x, y, player, PlayState.MAX_OBJECT_DISTANCE, true);
+		explosionSound.play();
 
 		kill();
 	}

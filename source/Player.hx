@@ -1,3 +1,4 @@
+import flixel.system.FlxSound;
 import flixel.util.FlxSpriteUtil;
 import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
@@ -34,6 +35,10 @@ class Player extends FlxNapeSprite {
 	public static var CBODYPlayer:CbType = new CbType(); // callback bodytype needed for collision listening
 
 	public var score:Int;
+
+	var shotSound:FlxSound; // sound played when shooting tha lazer
+	var deathSound:FlxSound; // sound played when player explodes
+	var hitSound:FlxSound; // sound played when player is hit (only when it flickers)
 
 	public function new() {
 		super(FlxG.width / 2, FlxG.height / 2); // we create the obj at the centre of the screen
@@ -82,6 +87,12 @@ class Player extends FlxNapeSprite {
 			explosionEmitter.add(p);
 		}
 		SetEmitterProperties();
+
+		/// SOUND STUFF
+		shotSound = FlxG.sound.load(AssetPaths.playerLaser__wav);
+		shotSound.volume = 0.5;
+		deathSound = FlxG.sound.load(AssetPaths.playerExp__wav);
+		hitSound = FlxG.sound.load(AssetPaths.playerHit__wav);
 	}
 
 	private function SetEmitterProperties() {
@@ -164,6 +175,8 @@ class Player extends FlxNapeSprite {
 		bullet1.create(x + (width / 2), y + (height / 2), 45, body.rotation + 0.01, shotDamage);
 		bullet2.create(x + (width / 2), y + (height / 2), 45, body.rotation - 0.01, shotDamage);
 
+		shotSound.play(true);
+
 		canShoot = false;
 		shootTimer.start(rateOfFire, function(_) canShoot = true, 1); // we start the timer so that after rateOfFire seconds we can shoot again
 	}
@@ -175,12 +188,12 @@ class Player extends FlxNapeSprite {
 				hittable = false;
 
 				FlxSpriteUtil.flicker(this, 1, 0.05, true, true, function(_) hittable = true); // if the syntax scares you see inlineFunctions.md
+				hitSound.play();
 				FlxG.camera.shake(0.02, 0.2);
 			}
 
 			if (integrity <= 0) {
 				kill();
-				FlxG.camera.shake(0.07, 1);
 			}
 		}
 
@@ -194,8 +207,12 @@ class Player extends FlxNapeSprite {
 	}
 
 	override public function kill() {
+		FlxG.camera.shake(0.07, 1);
+
 		explosionEmitter.focusOn(this);
 		explosionEmitter.start(true);
+
+		deathSound.play();
 
 		super.kill();
 	}
