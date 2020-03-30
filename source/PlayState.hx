@@ -14,9 +14,9 @@ import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.FlxG;
 import flixel.FlxState;
 
-
 class PlayState extends FlxState {
 	public static var MAX_OBJECT_DISTANCE = 3000;
+	public static var MAX_SOUND_DISTANCE = MAX_OBJECT_DISTANCE - 1000;
 
 	var player:Player;
 
@@ -239,7 +239,7 @@ class PlayState extends FlxState {
 					+ offsetX, Std.int((_asteroid.y + _asteroid.height / 2))
 					+ offsetY,
 					_asteroid.size
-					- 1, FlxG.random.int(-150, 150), FlxG.random.int(-150, 150));
+					- 1, FlxG.random.int(-150, 150), FlxG.random.int(-150, 150), player);
 			}
 		}
 	}
@@ -296,22 +296,22 @@ class PlayState extends FlxState {
 			// coming from left
 			SpawnAsteroid(Std.int(player.x - distanceFromPlayer),
 				Std.int(player.y + FlxG.random.int(-Std.int(distanceFromPlayer / 1.5), Std.int(distanceFromPlayer / 1.5))), size, baseSpeed + speedVariation,
-				FlxG.random.int(-Std.int(baseSpeed / 1.5), Std.int(baseSpeed / 1.5)));
+				FlxG.random.int(-Std.int(baseSpeed / 1.5), Std.int(baseSpeed / 1.5)), player);
 
 			// coming from above
 			SpawnAsteroid(Std.int(player.x + FlxG.random.int(-Std.int(distanceFromPlayer / 1.5), Std.int(distanceFromPlayer / 1.5))),
 				Std.int(player.y - distanceFromPlayer), size, FlxG.random.int(-Std.int(baseSpeed / 1.5), Std.int(baseSpeed / 1.5)),
-				baseSpeed + speedVariation);
+				baseSpeed + speedVariation, player);
 
 			// coming from right
 			SpawnAsteroid(Std.int(player.x + distanceFromPlayer),
 				Std.int(player.y + FlxG.random.int(-Std.int(distanceFromPlayer / 1.5), Std.int(distanceFromPlayer / 1.5))), size,
-				-(baseSpeed + speedVariation), FlxG.random.int(-Std.int(baseSpeed / 1.5), Std.int(baseSpeed / 1.5)));
+				-(baseSpeed + speedVariation), FlxG.random.int(-Std.int(baseSpeed / 1.5), Std.int(baseSpeed / 1.5)), player);
 
 			// coming from below
 			SpawnAsteroid(Std.int(player.x + FlxG.random.int(-Std.int(distanceFromPlayer / 1.5), Std.int(distanceFromPlayer / 1.5))),
 				Std.int(player.y + distanceFromPlayer), size, FlxG.random.int(-Std.int(baseSpeed / 1.5), Std.int(baseSpeed / 1.5)),
-				-(baseSpeed + speedVariation));
+				-(baseSpeed + speedVariation), player);
 		}
 	}
 
@@ -322,9 +322,9 @@ class PlayState extends FlxState {
 	}
 
 	// this function exists just for the convenience of not rewriting asteroids.recycle every time
-	private function SpawnAsteroid(_x:Int = 0, _y:Int = 0, _size:AsteroidSize = Small, _xVel = 0, _yVel = 0) {
+	private function SpawnAsteroid(_x:Int = 0, _y:Int = 0, _size:AsteroidSize = Small, _xVel = 0, _yVel = 0, _player:Player) {
 		var asteroid = asteroids.recycle(Asteroid.new);
-		asteroid.create(_x, _y, _size, _xVel, _yVel);
+		asteroid.create(_x, _y, _size, _xVel, _yVel, _player);
 	}
 
 	// function used by the killTimer for removing objects that are too far away

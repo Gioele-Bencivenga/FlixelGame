@@ -1,3 +1,4 @@
+import flixel.system.FlxSound;
 import nape.callbacks.*;
 import flixel.FlxG;
 import flixel.addons.nape.FlxNapeSprite;
@@ -18,15 +19,21 @@ class Asteroid extends FlxNapeSprite {
 	public var damage(default, null):Int;
 	public var size(default, null):AsteroidSize;
 
+	var player:Player;
+
+	var breakSound:FlxSound;
+
 	public static var CBODYAsteroid:CbType = new CbType(); // callback bodytype needed for collision listening
 
 	public function new() {
 		super();
 	}
 
-	public function create(_x:Int = 0, _y:Int = 0, _size:AsteroidSize = Small, _xVel = 0, _yVel = 0) {
+	public function create(_x:Int = 0, _y:Int = 0, _size:AsteroidSize = Small, _xVel = 0, _yVel = 0, _player:Player) {
 		x = _x;
 		y = _y;
+
+		player = _player;
 
 		/// SIZE ASSIGNMENT (sometimes _size is an unexpected value so we fix it here)
 		if (_size != Small && _size != Medium && _size != Large && _size != Huge) {
@@ -41,6 +48,10 @@ class Asteroid extends FlxNapeSprite {
 
 		body.velocity.setxy(_xVel, _yVel);
 		body.angularVel = FlxG.random.float(-7, 7);
+
+		// SOUND
+		breakSound = FlxG.sound.load(AssetPaths.asteroidBreak__wav);
+		breakSound.volume = 0.2;
 	}
 
 	override public function update(elapsed:Float) {
@@ -123,6 +134,11 @@ class Asteroid extends FlxNapeSprite {
 		}
 
 		if (integrity <= 0) {
+			if (size != Small) {
+				breakSound.proximity(x, y, player, PlayState.MAX_SOUND_DISTANCE, true);
+				breakSound.play();
+			}
+
 			kill();
 		}
 	}

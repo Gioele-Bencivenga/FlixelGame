@@ -39,6 +39,7 @@ class Player extends FlxNapeSprite {
 	var shotSound:FlxSound; // sound played when shooting tha lazer
 	var deathSound:FlxSound; // sound played when player explodes
 	var hitSound:FlxSound; // sound played when player is hit (only when it flickers)
+	var thrusterSound:FlxSound; // sound player when using the engines
 
 	public function new() {
 		super(FlxG.width / 2, FlxG.height / 2); // we create the obj at the centre of the screen
@@ -90,9 +91,11 @@ class Player extends FlxNapeSprite {
 
 		/// SOUND STUFF
 		shotSound = FlxG.sound.load(AssetPaths.playerLaser__wav);
-		shotSound.volume = 0.5;
+		shotSound.volume = 0.2;
 		deathSound = FlxG.sound.load(AssetPaths.playerExp__wav);
 		hitSound = FlxG.sound.load(AssetPaths.playerHit__wav);
+		thrusterSound = FlxG.sound.load(AssetPaths.playerThrusters__wav);
+		thrusterSound.volume = 0.1;
 	}
 
 	private function SetEmitterProperties() {
@@ -143,6 +146,7 @@ class Player extends FlxNapeSprite {
 			direction = Vec2.fromPolar(thrust, body.rotation);
 			body.applyImpulse(direction); // applying the impulse in the direction vector moves the body in the direction it's facing
 
+			thrusterSound.play(false, 0, 950);
 			goingForward = true;
 			thrustEmitter.start(false, 0.01, 1);
 		}
@@ -150,6 +154,7 @@ class Player extends FlxNapeSprite {
 			direction = Vec2.fromPolar(-(thrust / 3), body.rotation);
 			body.applyImpulse(direction);
 
+			thrusterSound.play(false, 0, 850);
 			goingForward = false;
 			thrustEmitter.start(false, 0.01, 1);
 		}
@@ -158,6 +163,10 @@ class Player extends FlxNapeSprite {
 		}
 		if (FlxG.keys.anyPressed([D, RIGHT])) {
 			body.applyAngularImpulse(turnVel);
+		}
+
+		if(FlxG.keys.anyJustReleased([W, UP, S, DOWN])){
+			thrusterSound.pause();
 		}
 
 		/// SHOOTING

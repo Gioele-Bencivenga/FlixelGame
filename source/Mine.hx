@@ -33,6 +33,8 @@ class Mine extends FlxNapeSprite {
 	var explosionEmitter:FlxEmitter;
 
 	var explosionSound:FlxSound; // sound played when the mine explodes
+	var hitSound:FlxSound; // sound played when the mine impacts something
+	var alarmSound:FlxSound; // sound played by the mines
 
 	public function new() {
 		super();
@@ -79,6 +81,7 @@ class Mine extends FlxNapeSprite {
 				setGraphicSize(85, 85);
 		}
 		animation.add('blink', [0, 1], FlxG.random.int(1, 6));
+		animation.callback = BlinkCallback;
 		animation.play('blink');
 
 		/// EMITTER
@@ -106,10 +109,23 @@ class Mine extends FlxNapeSprite {
 		switch size {
 			case Small:
 				explosionSound = FlxG.sound.load(AssetPaths.smallMineExp__wav);
+				alarmSound = FlxG.sound.load(AssetPaths.mineAlarmSm__wav);
 			case Medium:
 				explosionSound = FlxG.sound.load(AssetPaths.mediumMineExp__wav);
+				alarmSound = FlxG.sound.load(AssetPaths.mineAlarmMd__wav);
 			case Large:
 				explosionSound = FlxG.sound.load(AssetPaths.largeMineExp__wav);
+				alarmSound = FlxG.sound.load(AssetPaths.mineAlarmLg__wav);
+		}
+		hitSound = FlxG.sound.load(AssetPaths.mineHit__wav);
+		alarmSound.volume = 0.03;
+	}
+
+	// this function gets called on animation frame changes
+	function BlinkCallback(name:String, frameNumber:Int, frameIndex:Int) {
+		if(frameNumber == 1){
+			alarmSound.proximity(x, y, player, PlayState.MAX_SOUND_DISTANCE, true);
+			alarmSound.play();
 		}
 	}
 
@@ -140,6 +156,9 @@ class Mine extends FlxNapeSprite {
 	public function TakeDamage(_amount:Int) {
 		if (integrity > 0) {
 			integrity -= _amount;
+
+			hitSound.proximity(x, y, player, PlayState.MAX_SOUND_DISTANCE, true);
+			hitSound.play(true);
 		}
 
 		if (integrity <= 0) {
@@ -166,7 +185,7 @@ class Mine extends FlxNapeSprite {
 		explosionEmitter.focusOn(this);
 		explosionEmitter.start();
 
-		explosionSound.proximity(x, y, player, PlayState.MAX_OBJECT_DISTANCE, true);
+		explosionSound.proximity(x, y, player, PlayState.MAX_SOUND_DISTANCE, true);
 		explosionSound.play();
 
 		kill();
