@@ -1,3 +1,4 @@
+import flixel.math.FlxMath;
 import flixel.system.FlxSound;
 import flixel.FlxG;
 import flixel.FlxObject;
@@ -29,6 +30,8 @@ class Mine extends FlxNapeSprite {
 	var direction:Vec2;
 
 	var player:Player;
+
+	var angry:Bool; // flag to see if the mine detected the player and should move towards it
 
 	var explosionEmitter:FlxEmitter;
 
@@ -82,7 +85,6 @@ class Mine extends FlxNapeSprite {
 		}
 		animation.add('blink', [0, 1], FlxG.random.int(1, 6));
 		animation.callback = BlinkCallback;
-		animation.play('blink');
 
 		/// EMITTER
 		explosionEmitter = _explosionEmitter; // we assign the emitter to the one created in the PlayState
@@ -123,7 +125,7 @@ class Mine extends FlxNapeSprite {
 
 	// this function gets called on animation frame changes
 	function BlinkCallback(name:String, frameNumber:Int, frameIndex:Int) {
-		if(frameNumber == 1){
+		if (frameNumber == 1) {
 			alarmSound.proximity(x, y, player, PlayState.MAX_SOUND_DISTANCE, true);
 			alarmSound.play();
 		}
@@ -132,10 +134,27 @@ class Mine extends FlxNapeSprite {
 	override public function update(elapsed:Float) {
 		super.update(elapsed);
 
-		MoveTowardsPlayer();
+		if (player.alive) {
+			if (FlxMath.isDistanceWithin(this, player, 1500)) {
+				angry = true;
+				MoveTowardsPlayer();
+			} else {
+				if (angry == true) {
+					angry = false;
+					animation.reset();
+				}
+			}
+		} else {
+			if (angry == true) {
+				angry = false;
+				animation.reset();
+			}
+		}
 	}
 
 	private function MoveTowardsPlayer() {
+		animation.play('blink');
+
 		var randOffX = FlxG.random.int(-200, 200); // random offset so that mines don't go to the exact player position
 		var randOffY = FlxG.random.int(-200, 200);
 		direction = new Vec2(player.body.position.x + randOffX, player.body.position.y + randOffY);

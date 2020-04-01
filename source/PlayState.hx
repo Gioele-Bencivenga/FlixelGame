@@ -1,5 +1,6 @@
 package;
 
+import flixel.system.FlxSound;
 import flixel.FlxCamera;
 import Asteroid.AsteroidSize;
 import Mine.MineSize;
@@ -40,6 +41,9 @@ class PlayState extends FlxState {
 	var hudCamera:FlxCamera;
 
 	var text:FlxText;
+
+	var intro:FlxSound;
+	var music:FlxSound;
 
 	override public function create():Void {
 		// initializing the space for physics simulation
@@ -137,6 +141,19 @@ class PlayState extends FlxState {
 		// objects kill
 		objectKillTimer = new FlxTimer();
 		objectKillTimer.start(1, RemoveFarObjects, 0);
+
+		/// MUSIC
+		intro = FlxG.sound.load(AssetPaths.intro__mp3);
+		intro.volume = 0.5;
+		intro.onComplete = PlayMusicLoop; // once the intro completes 1 time we only play the music loop
+		music = FlxG.sound.load(AssetPaths.musicLoop__mp3);
+		music.looped = true;
+		music.volume = 0.5;
+		intro.play();
+	}
+
+	function PlayMusicLoop() {
+		music.play();
 	}
 
 	private function CollAsteroidToPlayer(i:InteractionCallback) {
@@ -360,6 +377,10 @@ class PlayState extends FlxState {
 		}
 		if (FlxG.keys.justPressed.COMMA) {
 			SetZoom(FlxG.camera.zoom -= 0.3);
+		}
+
+		if(!player.alive){
+			music.stop();
 		}
 
 		super.update(elapsed);

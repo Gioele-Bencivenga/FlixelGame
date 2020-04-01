@@ -95,7 +95,7 @@ class Player extends FlxNapeSprite {
 		deathSound = FlxG.sound.load(AssetPaths.playerExp__wav);
 		hitSound = FlxG.sound.load(AssetPaths.playerHit__wav);
 		thrusterSound = FlxG.sound.load(AssetPaths.playerThrusters__wav);
-		thrusterSound.volume = 0.1;
+		thrusterSound.volume = 0.05;
 	}
 
 	private function SetEmitterProperties() {
