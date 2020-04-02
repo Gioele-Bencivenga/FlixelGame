@@ -1,3 +1,4 @@
+import flixel.util.FlxTimer;
 import flixel.system.FlxSound;
 import nape.callbacks.*;
 import flixel.FlxG;
@@ -131,6 +132,9 @@ class Asteroid extends FlxNapeSprite {
 	public function TakeDamage(_amount:Int) {
 		if (integrity > 0) {
 			integrity -= _amount;
+
+			setColorTransform(1, 1, 1, 1, 255, 255, 255); // makes the sprite white
+			var timer = new FlxTimer().start(0.01, function(_) setColorTransform()); // starts a timer that changes the sprite back to the original color after n seconds
 		}
 
 		if (integrity <= 0) {

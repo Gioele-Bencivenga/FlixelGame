@@ -143,12 +143,19 @@ class PlayState extends FlxState {
 		objectKillTimer.start(1, RemoveFarObjects, 0);
 
 		/// MUSIC
+		#if html5
 		intro = FlxG.sound.load(AssetPaths.intro__mp3);
-		intro.volume = 0.5;
-		intro.onComplete = PlayMusicLoop; // once the intro completes 1 time we only play the music loop
 		music = FlxG.sound.load(AssetPaths.musicLoop__mp3);
+		#else
+		#if cpp
+		intro = FlxG.sound.load(AssetPaths.intro__wav);
+		music = FlxG.sound.load(AssetPaths.musicLoop__wav);
+		#end
+		#end
+		intro.volume = 0.3;
+		intro.onComplete = PlayMusicLoop; // once the intro completes 1 time we only play the music loop
 		music.looped = true;
-		music.volume = 0.5;
+		music.volume = 0.3;
 		intro.play();
 	}
 
