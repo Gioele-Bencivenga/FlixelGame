@@ -9,15 +9,14 @@ import flixel.text.FlxText;
 import flixel.util.*;
 import nape.callbacks.*;
 import flixel.math.FlxMath;
-import flixel.FlxCamera.FlxCameraFollowStyle;
 import flixel.addons.nape.FlxNapeSpace;
 import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.FlxG;
 import flixel.FlxState;
 
 class PlayState extends FlxState {
-	public static var MAX_OBJECT_DISTANCE = 3000;
-	public static var MAX_SOUND_DISTANCE = MAX_OBJECT_DISTANCE - 1000;
+	public static inline final MAX_OBJECT_DISTANCE = 3000;
+	public static inline final MAX_SOUND_DISTANCE = MAX_OBJECT_DISTANCE - 1500;
 
 	var player:Player;
 
