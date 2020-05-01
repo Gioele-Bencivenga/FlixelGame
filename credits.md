@@ -3,6 +3,7 @@
 ## Images
 
 Asteroids:
+
 Asteroid images by Cayden Franklin at <https://opengameart.org/content/pixel-art-2d-asteroid-pack>
 
 Ships:
