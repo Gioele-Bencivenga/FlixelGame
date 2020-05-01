@@ -17,4 +17,8 @@ Master484 at <https://opengameart.org/content/bullet-collection-1-m484>
 
 ## Music
 
+Background music by Niccolo' Toscani <https://www.instagram.com/niccolo_toscani?r=nametag>
+
 ## Sounds
+
+Sound effects by SubspaceAudio at <https://opengameart.org/content/512-sound-effects-8-bit-style>

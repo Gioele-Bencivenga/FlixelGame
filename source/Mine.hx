@@ -1,12 +1,8 @@
 import flixel.math.FlxMath;
 import flixel.system.FlxSound;
 import flixel.FlxG;
-import flixel.FlxObject;
-import haxe.display.Display.DeterminePackageResult;
 import flixel.util.FlxColor;
-import flixel.effects.particles.FlxParticle;
 import flixel.effects.particles.FlxEmitter;
-import flixel.util.FlxTimer;
 import nape.geom.Vec2;
 import nape.callbacks.CbType;
 import flixel.addons.nape.FlxNapeSprite;
