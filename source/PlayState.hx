@@ -146,10 +146,8 @@ class PlayState extends FlxState {
 		intro = FlxG.sound.load(AssetPaths.intro__mp3);
 		music = FlxG.sound.load(AssetPaths.musicLoop__mp3);
 		#else
-		#if cpp
 		intro = FlxG.sound.load(AssetPaths.intro__wav);
 		music = FlxG.sound.load(AssetPaths.musicLoop__wav);
-		#end
 		#end
 		intro.volume = 0.3;
 		intro.onComplete = PlayMusicLoop; // once the intro completes 1 time we only play the music loop
@@ -385,7 +383,7 @@ class PlayState extends FlxState {
 			SetZoom(FlxG.camera.zoom -= 0.3);
 		}
 
-		if(!player.alive){
+		if (!player.alive) {
 			music.stop();
 		}
 

@@ -180,9 +180,11 @@ class Player extends FlxNapeSprite {
 	private function Shoot() {
 		var bullet1 = PlayState.bullets.recycle(Bullet.new);
 		var bullet2 = PlayState.bullets.recycle(Bullet.new);
+		var bullet3 = PlayState.bullets.recycle(Bullet.new);
 
-		bullet1.create(x + (width / 2), y + (height / 2), 45, body.rotation + 0.01, shotDamage);
-		bullet2.create(x + (width / 2), y + (height / 2), 45, body.rotation - 0.01, shotDamage);
+		bullet1.create(x + (width / 2), y + (height / 2), 45, body.rotation + 0.05, shotDamage);
+		bullet2.create(x + (width / 2), y + (height / 2), 46, body.rotation, shotDamage);
+		bullet3.create(x + (width / 2), y + (height / 2), 45, body.rotation - 0.05, shotDamage);
 
 		shotSound.play(true);
 
