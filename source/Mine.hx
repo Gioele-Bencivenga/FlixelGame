@@ -21,6 +21,8 @@ class Mine extends FlxNapeSprite {
 
 	var maxVel:Int;
 
+	var distanceFromPlayer:Float;
+
 	public static var CBODYMine = new CbType();
 
 	var direction:Vec2;
@@ -56,14 +58,17 @@ class Mine extends FlxNapeSprite {
 				damage = 4;
 				integrity = 15;
 				maxVel = 700;
+				distanceFromPlayer = 600;
 			case Medium:
 				damage = 8;
 				integrity = 30;
 				maxVel = 670;
+				distanceFromPlayer = 800;
 			case Large:
 				damage = 12;
 				integrity = 40;
 				maxVel = 640;
+				distanceFromPlayer = 1200;
 		}
 
 		/// REFERENCES

@@ -1,8 +1,13 @@
+import flixel.util.FlxColor;
+import flixel.FlxG;
 import Mine.MineSize;
 import flixel.effects.particles.FlxEmitter;
+import nape.callbacks.CbType;
 import flixel.addons.nape.FlxNapeSprite;
 
 class PowerUp extends Mine {
+	public static var CBODYPowerUp = new CbType();
+
 	public function new() {
 		super();
 	}
@@ -27,7 +32,7 @@ class PowerUp extends Mine {
 		player = _player;
 
 		/// GRAPHIC
-		loadGraphic(AssetPaths.mine__png, true, 17, 17);
+		loadGraphic(AssetPaths.fireUp__png, true, 17, 17);
 		switch size {
 			case Small:
 				setGraphicSize(35, 35);
@@ -36,28 +41,27 @@ class PowerUp extends Mine {
 			case Large:
 				setGraphicSize(85, 85);
 		}
-		animation.add('blink', [0, 1], FlxG.random.int(1, 6));
-		animation.callback = BlinkCallback;
+		animation.add('blink', [0, 1, 2, 3, 2, 1, 0], FlxG.random.int(1, 11));
 
 		/// EMITTER
 		explosionEmitter = _explosionEmitter; // we assign the emitter to the one created in the PlayState
 		explosionEmitter.loadParticles(AssetPaths.explosion__png, 80);
 		explosionEmitter.alpha.set(1, 1, 0.2, 0.4);
-		explosionEmitter.color.set(FlxColor.ORANGE, FlxColor.YELLOW, FlxColor.GRAY, FlxColor.RED);
+		explosionEmitter.color.set(FlxColor.BLUE, FlxColor.CYAN, FlxColor.GRAY, FlxColor.PURPLE);
 
 		/// BODY
 		switch size {
 			case Small:
-				createCircularBody(17);
-				setBodyMaterial(1, 0.2, 0.4, 3, 0.001);
+				createCircularBody(20);
+
 			case Medium:
-				createCircularBody(30);
-				setBodyMaterial(0.6, 0.2, 0.4, 5, 0.001);
+				createCircularBody(35);
+
 			case Large:
-				createCircularBody(45);
-				setBodyMaterial(0.2, 0.2, 0.4, 7, 0.001);
+				createCircularBody(50);
 		}
-		body.cbTypes.add(CBODYMine);
+		setBodyMaterial(2, 0, 0, 0, 0); // powerups bounce a lot
+		body.cbTypes.add(CBODYPowerUp);
 		body.userData.data = this;
 
 		/// SOUND

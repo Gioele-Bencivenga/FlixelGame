@@ -280,7 +280,7 @@ class PlayState extends FlxState {
 	// function used by the timer for creating asteroid in the distance at a set interval
 	private function GenerateAsteroidsAndMines(_timer:FlxTimer):Void {
 		var maxMineNumber:Int; // how many mines in the space at a time
-		maxMineNumber = 1 + Math.round(Math.pow(player.score / 100, 1.4));
+		maxMineNumber = 2 + Math.round(Math.pow(player.score / 100, 2.5));
 
 		if (mines.countLiving() < maxMineNumber) {
 			var size:MineSize = FlxG.random.getObject([MineSize.Small, MineSize.Medium, MineSize.Large]);
@@ -296,9 +296,9 @@ class PlayState extends FlxState {
 
 		var asteroidSpawnNumber; // how many asteroids for each side
 		// we don't want to overwhelm the player too much
-		if (asteroids.countLiving() > 130) {
+		if (asteroids.countLiving() > 150) {
 			asteroidSpawnNumber = 0;
-		} else if (asteroids.countLiving() > 70) {
+		} else if (asteroids.countLiving() > 80) {
 			asteroidSpawnNumber = 1;
 		} else if (asteroids.countLiving() > 50) {
 			asteroidSpawnNumber = 2;
