@@ -57,8 +57,8 @@ class HUD extends FlxTypedGroup<FlxSprite> {
 		add(txtEnemies);
 
 		// we call the function on each element, by setting scrollFactor to 0,0 the elements won't scroll based on camera movements
-		forEach(function(el:FlxSprite) {
-			el.scrollFactor.set(0, 0);
+		forEach(function(element:FlxSprite) {
+			element.scrollFactor.set(0, 0);
 		});
 	}
 

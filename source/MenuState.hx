@@ -30,7 +30,7 @@ class MenuState extends FlxState {
 
 	private function QuitGame() { // thanks to dean for this function!
 		#if html5
-		FlxG.openURL("https://gioelebencivenga.casa", "_self");
+		FlxG.openURL("https://gioele-bencivenga.github.io", "_self");
 		#else
 		#if cpp
 		Sys.exit(0);
