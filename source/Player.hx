@@ -1,4 +1,4 @@
-import flixel.system.FlxSound;
+import flixel.sound.FlxSound;
 import flixel.util.FlxSpriteUtil;
 import flixel.util.FlxColor;
 import flixel.util.FlxTimer;

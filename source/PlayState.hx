@@ -1,20 +1,21 @@
 package;
 
-import flixel.system.FlxSound;
-import flixel.FlxCamera;
 import Asteroid.AsteroidSize;
 import Mine.MineSize;
+import flixel.FlxCamera;
+import flixel.FlxG;
+import flixel.FlxState;
+import flixel.addons.nape.FlxNapeSpace;
 import flixel.effects.particles.FlxEmitter;
+import flixel.group.FlxGroup.FlxTypedGroup;
+import flixel.math.FlxMath;
+import flixel.sound.FlxSound;
 import flixel.text.FlxText;
 import flixel.util.*;
 import nape.callbacks.*;
-import flixel.math.FlxMath;
-import flixel.addons.nape.FlxNapeSpace;
-import flixel.group.FlxGroup.FlxTypedGroup;
-import flixel.FlxG;
-import flixel.FlxState;
 
-class PlayState extends FlxState {
+class PlayState extends FlxState
+{
 	public static inline final MAX_OBJECT_DISTANCE = 3000;
 	public static inline final MAX_SOUND_DISTANCE = MAX_OBJECT_DISTANCE - 1500;
 
@@ -44,13 +45,28 @@ class PlayState extends FlxState {
 	var intro:FlxSound;
 	var music:FlxSound;
 
-	override public function create():Void {
+	override public function create():Void
+	{
 		// initializing the space for physics simulation
 		FlxNapeSpace.init();
 		FlxNapeSpace.velocityIterations = 5;
 		FlxNapeSpace.positionIterations = 5;
 
 		super.create();
+
+		/// CAMERAS
+		// game camera
+		gameCamera = new FlxCamera(0, 0, FlxG.width, FlxG.height);
+		gameCamera.bgColor = FlxColor.BLACK;
+		gameCamera.zoom = 0.3;
+		gameCamera.followLead.x += 5;
+		gameCamera.followLead.y += 5;
+		// FlxG.cameras.reset(gameCamera);
+		FlxG.cameras.setDefaultDrawTarget(gameCamera, true);
+		// hud camera
+		hudCamera = new FlxCamera(0, 0, FlxG.width, FlxG.height);
+		hudCamera.bgColor = FlxColor.TRANSPARENT;
+		FlxG.cameras.add(hudCamera);
 
 		/// EMITTERS
 		mineExplosionEmitter = new FlxEmitter();
@@ -63,6 +79,7 @@ class PlayState extends FlxState {
 		add(player.thrustEmitter); // emitters first so the player gets drawn over the particles
 		add(player.explosionEmitter);
 		add(player);
+		gameCamera.follow(player);
 
 		/// ASTEROIDS
 		asteroids = new FlxTypedGroup<Asteroid>();
@@ -77,26 +94,11 @@ class PlayState extends FlxState {
 		mines = new FlxTypedGroup<Mine>();
 		add(mines);
 
-		/// CAMERAS
-		// game camera
-		gameCamera = new FlxCamera(0, 0, FlxG.width, FlxG.height);
-		gameCamera.bgColor = FlxColor.BLACK;
-		gameCamera.zoom = 0.4;
-		gameCamera.follow(player, LOCKON);
-		gameCamera.followLead.x += 5;
-		gameCamera.followLead.y += 5;
-		FlxG.cameras.reset(gameCamera);
-		// hud camera
-		hudCamera = new FlxCamera(0, 0, FlxG.width, FlxG.height);
-		hudCamera.bgColor = FlxColor.TRANSPARENT;
-		FlxG.cameras.add(hudCamera);
-
-		FlxCamera.defaultCameras = [gameCamera];
-
 		/// HUD
 		hud = new HUD(player, mines);
-		hud.forEach(function(element) {
-			element.cameras = [hudCamera];
+		hud.forEach(function(element)
+		{
+			element.camera = hudCamera;
 		});
 		add(hud);
 
@@ -156,11 +158,13 @@ class PlayState extends FlxState {
 		intro.play();
 	}
 
-	function PlayMusicLoop() {
+	function PlayMusicLoop()
+	{
 		music.play();
 	}
 
-	private function CollAsteroidToPlayer(i:InteractionCallback) {
+	private function CollAsteroidToPlayer(i:InteractionCallback)
+	{
 		var asteroid:Asteroid = i.int1.userData.data;
 
 		player.TakeDamage(asteroid.damage);
@@ -168,7 +172,8 @@ class PlayState extends FlxState {
 		hud.UpdateHUD();
 	}
 
-	private function CollAsteroidToAsteroid(i:InteractionCallback) {
+	private function CollAsteroidToAsteroid(i:InteractionCallback)
+	{
 		var asteroid1:Asteroid = i.int1.userData.data;
 		var asteroid2:Asteroid = i.int2.userData.data;
 
@@ -182,14 +187,16 @@ class PlayState extends FlxState {
 			FragmentAsteroid(asteroid2);
 	}
 
-	private function CollBulletToAsteroid(i:InteractionCallback) {
+	private function CollBulletToAsteroid(i:InteractionCallback)
+	{
 		var bullet:Bullet = i.int1.userData.data;
 		var asteroid:Asteroid = i.int2.userData.data;
 
 		asteroid.TakeDamage(bullet.damage);
 		bullet.kill();
 
-		if (asteroid.integrity <= 0) {
+		if (asteroid.integrity <= 0)
+		{
 			FragmentAsteroid(asteroid);
 
 			player.score += asteroid.size + 1;
@@ -197,15 +204,19 @@ class PlayState extends FlxState {
 		}
 	}
 
-	private function CollMineToAsteroid(i:InteractionCallback) {
+	private function CollMineToAsteroid(i:InteractionCallback)
+	{
 		var mine:Mine = i.int1.userData.data;
 		var asteroid:Asteroid = i.int2.userData.data;
 
 		mine.TakeDamage(asteroid.damage);
 
-		if (mine.integrity <= 0) { // if the mine explodes we apply the damage to the asteroid
+		if (mine.integrity <= 0)
+		{ // if the mine explodes we apply the damage to the asteroid
 			asteroid.TakeDamage(mine.damage);
-		} else { // else we just do a little damage to the asteroid
+		}
+		else
+		{ // else we just do a little damage to the asteroid
 			asteroid.TakeDamage(mine.size + 1);
 		}
 
@@ -213,7 +224,8 @@ class PlayState extends FlxState {
 			FragmentAsteroid(asteroid);
 	}
 
-	private function CollMineToMine(i:InteractionCallback) {
+	private function CollMineToMine(i:InteractionCallback)
+	{
 		var mine1:Mine = i.int1.userData.data;
 		var mine2:Mine = i.int2.userData.data;
 
@@ -221,20 +233,23 @@ class PlayState extends FlxState {
 		mine2.TakeDamage(mine1.damage);
 	}
 
-	private function CollBulletToMine(i:InteractionCallback) {
+	private function CollBulletToMine(i:InteractionCallback)
+	{
 		var bullet:Bullet = i.int1.userData.data;
 		var mine:Mine = i.int2.userData.data;
 
 		bullet.kill();
 		mine.TakeDamage(bullet.damage);
 
-		if (mine.integrity <= 0) {
+		if (mine.integrity <= 0)
+		{
 			player.score += (mine.size + 1) * 10; // player gets 10 points for a small mine, 20 for medium and 30 for large
 			hud.UpdateHUD();
 		}
 	}
 
-	private function CollPlayerToMine(i:InteractionCallback) {
+	private function CollPlayerToMine(i:InteractionCallback)
+	{
 		var mine:Mine = i.int2.userData.data;
 
 		mine.Explode();
@@ -246,12 +261,15 @@ class PlayState extends FlxState {
 	// this function creates between 3 and 6 asteroids (chunks) that are smaller than the one passed as an argument (_asteroid)
 	// the chunks are created at the center of the _asteroid, with a random offset to help them not get stuck overlapping
 	// initially it was calling SpawnAsteroid() but that was changed for reasons I have now forgot
-	private function FragmentAsteroid(_asteroid:Asteroid) {
-		if (_asteroid.size != Small) { // if the asteroid is big enough to fragment
+	private function FragmentAsteroid(_asteroid:Asteroid)
+	{
+		if (_asteroid.size != Small)
+		{ // if the asteroid is big enough to fragment
 			var numOfChunks = FlxG.random.int(3, 6);
 			var maxOff = 40; // maximum offset variable
 
-			for (i in 0...numOfChunks) {
+			for (i in 0...numOfChunks)
+			{
 				var offsetX = FlxG.random.int(-maxOff, maxOff);
 				var offsetY = FlxG.random.int(-maxOff, maxOff);
 
@@ -266,11 +284,14 @@ class PlayState extends FlxState {
 	}
 
 	// this function exists to prevent mines from spawning too close to the player
-	private function TweakOffset(_offset:Int):Int {
-		if (_offset < 1000 && _offset > 0) {
+	private function TweakOffset(_offset:Int):Int
+	{
+		if (_offset < 1000 && _offset > 0)
+		{
 			_offset += 1000;
 		}
-		if (_offset > -1000 && _offset < 0) {
+		if (_offset > -1000 && _offset < 0)
+		{
 			_offset -= 1000;
 		}
 
@@ -278,11 +299,13 @@ class PlayState extends FlxState {
 	}
 
 	// function used by the timer for creating asteroid in the distance at a set interval
-	private function GenerateAsteroidsAndMines(_timer:FlxTimer):Void {
+	private function GenerateAsteroidsAndMines(_timer:FlxTimer):Void
+	{
 		var maxMineNumber:Int; // how many mines in the space at a time
 		maxMineNumber = 2 + Math.round(Math.pow(player.score / 100, 2.5));
 
-		if (mines.countLiving() < maxMineNumber) {
+		if (mines.countLiving() < maxMineNumber)
+		{
 			var size:MineSize = FlxG.random.getObject([MineSize.Small, MineSize.Medium, MineSize.Large]);
 			var offsX:Int = FlxG.random.int(-2000, 2000);
 			var offsY:Int = FlxG.random.int(-2000, 2000);
@@ -296,22 +319,32 @@ class PlayState extends FlxState {
 
 		var asteroidSpawnNumber; // how many asteroids for each side
 		// we don't want to overwhelm the player too much
-		if (asteroids.countLiving() > 150) {
+		if (asteroids.countLiving() > 150)
+		{
 			asteroidSpawnNumber = 0;
-		} else if (asteroids.countLiving() > 80) {
+		}
+		else if (asteroids.countLiving() > 80)
+		{
 			asteroidSpawnNumber = 1;
-		} else if (asteroids.countLiving() > 50) {
+		}
+		else if (asteroids.countLiving() > 50)
+		{
 			asteroidSpawnNumber = 2;
-		} else if (asteroids.countLiving() > 10) {
+		}
+		else if (asteroids.countLiving() > 10)
+		{
 			asteroidSpawnNumber = 3;
-		} else {
+		}
+		else
+		{
 			asteroidSpawnNumber = 4;
 		}
 
 		var baseSpeed = 100;
 		var distanceFromPlayer = 2500;
 		// asteroid batch around player
-		for (i in 0...asteroidSpawnNumber) {
+		for (i in 0...asteroidSpawnNumber)
+		{
 			var size = FlxG.random.getObject([AsteroidSize.Medium, AsteroidSize.Large, AsteroidSize.Huge]); // each asteroid is of different size
 			var speedVariation = FlxG.random.int(-200, 200); // each asteroid has a speed slightly different than another
 			// coming from left
@@ -336,61 +369,76 @@ class PlayState extends FlxState {
 		}
 	}
 
-	private function SpawnMine(_x:Int = 0, _y:Int = 0, _size:MineSize = Small) {
+	private function SpawnMine(_x:Int = 0, _y:Int = 0, _size:MineSize = Small)
+	{
 		var mine = mines.recycle(Mine.new);
 		mine.create(_x, _y, _size, mineExplosionEmitter, player);
 		mine.body.velocity.setxy(FlxG.random.int(-200, 200), FlxG.random.int(-20, 20));
 	}
 
 	// this function exists just for the convenience of not rewriting asteroids.recycle every time
-	private function SpawnAsteroid(_x:Int = 0, _y:Int = 0, _size:AsteroidSize = Small, _xVel = 0, _yVel = 0, _player:Player) {
+	private function SpawnAsteroid(_x:Int = 0, _y:Int = 0, _size:AsteroidSize = Small, _xVel = 0, _yVel = 0, _player:Player)
+	{
 		var asteroid = asteroids.recycle(Asteroid.new);
 		asteroid.create(_x, _y, _size, _xVel, _yVel, _player);
 	}
 
 	// function used by the killTimer for removing objects that are too far away
-	private function RemoveFarObjects(_timer:FlxTimer):Void {
-		for (bullet in bullets) {
-			if (!FlxMath.isDistanceWithin(bullet, player, MAX_OBJECT_DISTANCE)) {
+	private function RemoveFarObjects(_timer:FlxTimer):Void
+	{
+		for (bullet in bullets)
+		{
+			if (!FlxMath.isDistanceWithin(bullet, player, MAX_OBJECT_DISTANCE))
+			{
 				bullet.kill();
 			}
 		}
 
-		for (asteroid in asteroids) {
-			if (!FlxMath.isDistanceWithin(asteroid, player, MAX_OBJECT_DISTANCE)) {
+		for (asteroid in asteroids)
+		{
+			if (!FlxMath.isDistanceWithin(asteroid, player, MAX_OBJECT_DISTANCE))
+			{
 				asteroid.kill();
 			}
 		}
 
-		for (mine in mines) {
-			if (!FlxMath.isDistanceWithin(mine, player, MAX_OBJECT_DISTANCE)) {
+		for (mine in mines)
+		{
+			if (!FlxMath.isDistanceWithin(mine, player, MAX_OBJECT_DISTANCE))
+			{
 				mine.kill();
 			}
 		}
 	}
 
-	override public function update(elapsed:Float):Void {
+	override public function update(elapsed:Float):Void
+	{
 		// pressing ESC brings back to the menu
-		if (FlxG.keys.justReleased.ESCAPE) {
+		if (FlxG.keys.justReleased.ESCAPE)
+		{
 			FlxG.switchState(new MenuState());
 		}
 
 		// pressing period/comma zooms in/out
-		if (FlxG.keys.justPressed.PERIOD) {
+		if (FlxG.keys.justPressed.PERIOD)
+		{
 			SetZoom(FlxG.camera.zoom += 0.3);
 		}
-		if (FlxG.keys.justPressed.COMMA) {
+		if (FlxG.keys.justPressed.COMMA)
+		{
 			SetZoom(FlxG.camera.zoom -= 0.3);
 		}
 
-		if (!player.alive) {
+		if (!player.alive)
+		{
 			music.stop();
 		}
 
 		super.update(elapsed);
 	}
 
-	private function SetZoom(_zoom:Float) {
+	private function SetZoom(_zoom:Float)
+	{
 		gameCamera.zoom = FlxMath.bound(_zoom, 0.4, 3);
 	}
 }

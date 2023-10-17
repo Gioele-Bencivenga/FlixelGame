@@ -1,5 +1,5 @@
 import flixel.util.FlxTimer;
-import flixel.system.FlxSound;
+import flixel.sound.FlxSound;
 import nape.callbacks.*;
 import flixel.FlxG;
 import flixel.addons.nape.FlxNapeSprite;
